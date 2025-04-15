@@ -11,12 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useReviews } from '@/contexts/ReviewsContext';
-
-const mockSubjects = [
-  { id: '1', name: 'Matemática', color: '#ef4444' },
-  { id: '2', name: 'Física', color: '#3b82f6' },
-  { id: '3', name: 'Química', color: '#22c55e' },
-];
+import { useSubjects } from '@/contexts/SubjectsContext';
 
 interface NewReviewModalProps {
   visible: boolean;
@@ -62,12 +57,13 @@ export default function NewReviewModal({
   selectedDate,
 }: NewReviewModalProps) {
   const { addReview, formatDate } = useReviews();
+  const { subjects } = useSubjects();
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = () => {
-    const selectedSubject = mockSubjects.find(s => s.id === subject);
+    const selectedSubject = subjects.find(s => s.id === subject);
     if (selectedSubject) {
       const newReview = {
         id: Date.now().toString(),
@@ -127,7 +123,7 @@ export default function NewReviewModal({
                   style={styles.select}
                 >
                   <Picker.Item label="Selecione uma disciplina" value="" />
-                  {mockSubjects.map((s) => (
+                  {subjects.map((s) => (
                     <Picker.Item key={s.id} label={s.name} value={s.id} />
                   ))}
                 </Picker>

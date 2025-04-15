@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
+import { useSubjects } from '@/contexts/SubjectsContext';
 
 const COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16',
@@ -8,39 +9,18 @@ const COLORS = [
   '#a855f7', '#d946ef', '#ec4899', '#f43f5e',
 ];
 
-interface Subject {
-  id: string;
-  name: string;
-  color: string;
-}
-
 export default function Subjects() {
-  const [subjects, setSubjects] = useState<Subject[]>([
-    { id: '1', name: 'Matemática', color: '#ef4444' },
-    { id: '2', name: 'Física', color: '#3b82f6' },
-    { id: '3', name: 'Química', color: '#22c55e' },
-  ]);
+  const { subjects, addSubject, removeSubject } = useSubjects();
   const [newSubject, setNewSubject] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [isAdding, setIsAdding] = useState(false);
 
-  const addSubject = () => {
+  const handleAddSubject = () => {
     if (newSubject.trim()) {
-      setSubjects(prev => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          name: newSubject.trim(),
-          color: selectedColor,
-        },
-      ]);
+      addSubject(newSubject.trim(), selectedColor);
       setNewSubject('');
       setIsAdding(false);
     }
-  };
-
-  const removeSubject = (id: string) => {
-    setSubjects(prev => prev.filter(subject => subject.id !== id));
   };
 
   return (
@@ -81,7 +61,7 @@ export default function Subjects() {
               />
             ))}
           </ScrollView>
-          <Pressable style={styles.addButton} onPress={addSubject}>
+          <Pressable style={styles.addButton} onPress={handleAddSubject}>
             <Text style={styles.addButtonText}>Adicionar Disciplina</Text>
           </Pressable>
         </View>
