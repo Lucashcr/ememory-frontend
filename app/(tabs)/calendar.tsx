@@ -84,6 +84,9 @@ export default function Calendar() {
     return acc;
   }, {});
 
+  const sortedReviewDates = Object.entries(reviewsByDate)
+    .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime());
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.reviewList}>
@@ -139,7 +142,7 @@ export default function Calendar() {
         </View>
 
         <View style={{padding: 4, marginTop: 16}}>
-          {Object.entries(reviewsByDate).map(([date, dateReviews]) => (
+          {sortedReviewDates.map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
                 {new Date(date).toLocaleDateString('pt-BR', {timeZone: '+00:00'})}
