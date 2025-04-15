@@ -40,12 +40,15 @@ export default function NewReviewModal({
       const newReview = {
         id: Date.now().toString(),
         topic: title,
-        subject: selectedSubject.name,
-        color: selectedSubject.color,
+        subject: {
+          name: selectedSubject.name,
+          color: selectedSubject.color
+        },
         notes,
+        date: formatDate(selectedDate)
       };
       
-      addReview(formatDate(selectedDate), newReview);
+      addReview(newReview);
     }
 
     // Reset form and close modal

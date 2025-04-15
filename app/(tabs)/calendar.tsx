@@ -55,6 +55,10 @@ export default function Calendar() {
   };
 
   const days = getDaysInMonth(currentDate);
+  const reviewsByDate = reviews.reduce((acc: { [key: string]: Review[] }, review) => {
+    acc[review.date] = [...(acc[review.date] || []), review];
+    return acc;
+  }, {});
 
   return (
     <View style={styles.container}>
@@ -89,15 +93,15 @@ export default function Calendar() {
               {date && (
                 <>
                   <Text style={styles.dayNumber}>{date.getDate()}</Text>
-                  {reviews[formatDate(date)] && (
+                  {reviewsByDate[formatDate(date)] && (
                     <View style={styles.reviewIndicators}>
-                      {reviews[formatDate(date)].map(
-                        (review: Review, reviewIndex: number) => (
+                      {reviewsByDate[formatDate(date)].map(
+                        (review, reviewIndex) => (
                           <View
                             key={reviewIndex}
                             style={[
                               styles.reviewDot,
-                              { backgroundColor: review.color },
+                              { backgroundColor: review.subject.color },
                             ]}
                           />
                         )
@@ -111,7 +115,7 @@ export default function Calendar() {
         </View>
 
         <View style={{padding: 4, marginTop: 16}}>
-          {Object.entries(reviews).map(([date, dateReviews]: [string, Review[]]) => (
+          {Object.entries(reviewsByDate).map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
                 {new Date(date).toLocaleDateString('pt-BR', {timeZone: "+00:00"})}
@@ -121,7 +125,7 @@ export default function Calendar() {
                   key={index}
                   style={[
                     styles.reviewItem,
-                    isReviewCompleted(review, date) && styles.reviewItemCompleted
+                    isReviewCompleted(review) && styles.reviewItemCompleted
                   ]}
                   onPress={() => {
                     setSelectedReview(review);
@@ -131,24 +135,24 @@ export default function Calendar() {
                   <View
                     style={[
                       styles.reviewColor,
-                      { backgroundColor: review.color },
+                      { backgroundColor: review.subject.color },
                     ]}
                   />
                   <View style={styles.reviewContent}>
                     <Text style={[
                       styles.reviewTopic,
-                      isReviewCompleted(review, date) && styles.reviewTextCompleted
+                      isReviewCompleted(review) && styles.reviewTextCompleted
                     ]}>
                       {review.topic}
                     </Text>
                     <Text style={[
                       styles.reviewSubject,
-                      isReviewCompleted(review, date) && styles.reviewTextCompleted
+                      isReviewCompleted(review) && styles.reviewTextCompleted
                     ]}>
-                      {review.subject}
+                      {review.subject.name}
                     </Text>
                   </View>
-                  {isReviewCompleted(review, date) && (
+                  {isReviewCompleted(review) && (
                     <View style={styles.completedCheckmark}>
                       <Check size={16} color="#22c55e" />
                     </View>
@@ -180,12 +184,11 @@ export default function Calendar() {
         review={selectedReview}
         visible={reviewDetailsVisible}
         onClose={() => setReviewDetailsVisible(false)}
-        isCompleted={!!selectedReview && isReviewCompleted(selectedReview, formatDate(currentDate))}
+        isCompleted={!!selectedReview && isReviewCompleted(selectedReview)}
         onToggleComplete={(id: string) => {
-          const date = formatDate(currentDate);
-          const review = reviews[date]?.find((r: Review) => r.id === id);
+          const review = reviews.find((r) => r.id === id);
           if (review) {
-            toggleReview(date, review);
+            toggleReview(review);
           }
         }}
       />

@@ -5,7 +5,7 @@ import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 
 export default function DailyReviews() {
-  const { getDailyReviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
+  const { getDailyReviews, isReviewCompleted, toggleReview } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
@@ -16,8 +16,6 @@ export default function DailyReviews() {
     setSelectedReview(review);
     setModalVisible(true);
   };
-
-  const todayStr = formatDate(today);
 
   return (
     <View style={styles.container}>
@@ -30,20 +28,20 @@ export default function DailyReviews() {
             <Pressable
               onPress={(e) => {
                 e.stopPropagation();
-                toggleReview(todayStr, review);
+                toggleReview(review);
               }}
               style={styles.checkboxContainer}>
-              <View style={[styles.checkbox, isReviewCompleted(review, todayStr) && styles.checkboxChecked]}>
-                {isReviewCompleted(review, todayStr) && (
+              <View style={[styles.checkbox, isReviewCompleted(review) && styles.checkboxChecked]}>
+                {isReviewCompleted(review) && (
                   <Check size={16} color="#fff" />
                 )}
               </View>
             </Pressable>
             <View style={styles.reviewContent}>
-              <View style={[styles.subjectIndicator, { backgroundColor: review.color }]} />
+              <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
               <View>
                 <Text style={styles.topicText}>{review.topic}</Text>
-                <Text style={styles.subjectText}>{review.subject}</Text>
+                <Text style={styles.subjectText}>{review.subject.name}</Text>
               </View>
             </View>
           </Pressable>
@@ -54,11 +52,11 @@ export default function DailyReviews() {
         review={selectedReview}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        isCompleted={selectedReview ? isReviewCompleted(selectedReview, todayStr) : false}
+        isCompleted={selectedReview ? isReviewCompleted(selectedReview) : false}
         onToggleComplete={(id) => {
           const review = dailyReviews.find(r => r.id === id);
           if (review) {
-            toggleReview(todayStr, review);
+            toggleReview(review);
           }
         }}
       />

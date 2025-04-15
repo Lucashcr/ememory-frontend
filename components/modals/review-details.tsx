@@ -1,9 +1,10 @@
 import React from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Check, X } from "lucide-react-native";
+import { Review } from "@/contexts/ReviewsContext";
 
 export interface ReviewDetailsProps {
-  review: ReviewType | null;
+  review: Review | null;
   visible: boolean;
   onClose: () => void;
   isCompleted: boolean;
@@ -22,10 +23,10 @@ export default function ReviewDetails({ review, visible, onClose, isCompleted, o
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <View style={[styles.subjectIndicator, { backgroundColor: review.color }]} />
+            <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
             <View style={styles.modalHeaderText}>
               <Text style={styles.modalTitle}>{review.topic}</Text>
-              <Text style={styles.modalSubject}>{review.subject}</Text>
+              <Text style={styles.modalSubject}>{review.subject.name}</Text>
             </View>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color="#64748b" />
