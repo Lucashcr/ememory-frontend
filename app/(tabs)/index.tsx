@@ -5,12 +5,43 @@ import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 
 export default function DailyReviews() {
-  const { getDailyReviews, isReviewCompleted, toggleReview } = useReviews();
+  const { reviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
   const today = new Date();
-  const dailyReviews = getDailyReviews(today);
+  const todayStr = formatDate(today);
+  const dailyReviews = reviews.filter(review => 
+    review.initialDate === todayStr || review.reviewDates.includes(todayStr)
+  );
+
+  const getReviewStatus = (review: Review, date: string) => {
+    if (date === review.initialDate) {
+      return 'Inicial';
+    }
+    const reviewIndex = review.reviewDates.indexOf(date);
+    switch (reviewIndex) {
+      case 0:
+        return '1 dia';
+      case 1:
+        return '7 dias';
+      case 2:
+        return '15 dias';
+      case 3:
+        return '30 dias';
+      case 4:
+        return '60 dias';
+      default:
+        return '';
+    }
+  };
+
+  const reviewTypeText = (review: Review) => {
+    if (review.initialDate === todayStr) {
+      return `Data inicial (${getReviewStatus(review, todayStr)})`;
+    }
+    return `Data de revisão (${getReviewStatus(review, todayStr)})`;
+  };
 
   const openReviewDetails = (review: Review) => {
     setSelectedReview(review);
@@ -42,6 +73,7 @@ export default function DailyReviews() {
               <View>
                 <Text style={styles.topicText}>{review.topic}</Text>
                 <Text style={styles.subjectText}>{review.subject.name}</Text>
+                <Text style={styles.reviewTypeText}>{reviewTypeText(review)}</Text>
               </View>
             </View>
           </Pressable>
@@ -122,6 +154,11 @@ const styles = StyleSheet.create({
   subjectText: {
     fontSize: 14,
     color: '#64748b',
+    marginTop: 2,
+  },
+  reviewTypeText: {
+    fontSize: 12,
+    color: '#94a3b8',
     marginTop: 2,
   },
 });

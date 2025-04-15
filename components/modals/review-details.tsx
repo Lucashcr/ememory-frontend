@@ -14,6 +14,27 @@ export interface ReviewDetailsProps {
 export default function ReviewDetails({ review, visible, onClose, isCompleted, onToggleComplete }: ReviewDetailsProps) {
   if (!review) return null;
 
+  const getReviewStatus = (initialDate: string, reviewDates: string[], date: string) => {
+    if (date === initialDate) {
+      return 'Inicial';
+    }
+    const reviewIndex = reviewDates.indexOf(date);
+    switch (reviewIndex) {
+      case 0:
+        return '1 dia';
+      case 1:
+        return '7 dias';
+      case 2:
+        return '15 dias';
+      case 3:
+        return '30 dias';
+      case 4:
+        return '60 dias';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -35,6 +56,18 @@ export default function ReviewDetails({ review, visible, onClose, isCompleted, o
           <View style={styles.modalBody}>
             <Text style={styles.notesLabel}>Observações:</Text>
             <Text style={styles.notesText}>{review.notes}</Text>
+            
+            <Text style={[styles.notesLabel, { marginTop: 16 }]}>Data inicial:</Text>
+            <Text style={styles.dateText}>
+              {new Date(review.initialDate).toLocaleDateString('pt-BR', { timeZone: '+00:00' })} ({getReviewStatus(review.initialDate, review.reviewDates, review.initialDate)})
+            </Text>
+
+            <Text style={[styles.notesLabel, { marginTop: 16 }]}>Datas de revisão:</Text>
+            {review.reviewDates.map((date, index) => (
+              <Text key={index} style={styles.dateText}>
+                {new Date(date).toLocaleDateString('pt-BR', { timeZone: '+00:00' })} ({getReviewStatus(review.initialDate, review.reviewDates, date)})
+              </Text>
+            ))}
           </View>
           <View style={styles.modalFooter}>
             <Pressable
@@ -141,5 +174,10 @@ const styles = StyleSheet.create({
   },
   completeButtonTextActive: {
     color: '#fff',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#334155',
+    marginBottom: 4,
   },
 });

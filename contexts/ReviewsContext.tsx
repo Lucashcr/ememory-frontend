@@ -8,7 +8,8 @@ export type Review = {
     color: string;
   };
   notes: string;
-  date: string;
+  initialDate: string;
+  reviewDates: string[];
 };
 
 type ReviewsContextType = {
@@ -30,7 +31,8 @@ const mockReviews: Review[] = [
       color: '#ef4444'
     },
     notes: 'Revisar gráficos de funções quadráticas e suas propriedades. Focar em vértice, concavidade e raízes.',
-    date: '2025-04-15'
+    initialDate: '2025-04-15',
+    reviewDates: ['2025-04-16', '2025-04-22', '2025-04-30', '2025-05-15', '2025-06-14']
   },
   {
     id: '2',
@@ -40,7 +42,8 @@ const mockReviews: Review[] = [
       color: '#3b82f6'
     },
     notes: 'Estudar as três leis de Newton e suas aplicações práticas. Resolver exercícios de força e movimento.',
-    date: '2025-04-15'
+    initialDate: '2025-04-15',
+    reviewDates: ['2025-04-16', '2025-04-22', '2025-04-30', '2025-05-15', '2025-06-14']
   },
   {
     id: '3',
@@ -50,7 +53,8 @@ const mockReviews: Review[] = [
       color: '#22c55e'
     },
     notes: 'Memorizar as principais famílias e suas características. Revisar propriedades periódicas.',
-    date: '2025-04-16'
+    initialDate: '2025-04-16',
+    reviewDates: ['2025-04-17', '2025-04-23', '2025-05-01', '2025-05-16', '2025-06-15']
   },
 ];
 
@@ -68,11 +72,11 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
   };
 
   const isReviewCompleted = (review: Review) => {
-    return completedReviews.includes(`${review.date}-${review.id}`);
+    return completedReviews.includes(`${review.initialDate}-${review.id}`);
   };
 
   const toggleReview = (review: Review) => {
-    const reviewId = `${review.date}-${review.id}`;
+    const reviewId = `${review.initialDate}-${review.id}`;
     setCompletedReviews(prev =>
       prev.includes(reviewId)
         ? prev.filter(id => id !== reviewId)
@@ -86,7 +90,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
 
   const getDailyReviews = (date: Date) => {
     const dateStr = formatDate(date);
-    return reviews.filter(review => review.date === dateStr);
+    return reviews.filter(review => review.reviewDates.includes(dateStr));
   };
 
   const value = {

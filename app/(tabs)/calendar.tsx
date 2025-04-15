@@ -54,9 +54,33 @@ export default function Calendar() {
     setModalVisible(true);
   };
 
+  const getReviewStatus = (review: Review, date: string) => {
+    if (date === review.initialDate) {
+      return 'Inicial';
+    }
+    const reviewIndex = review.reviewDates.indexOf(date);
+    switch (reviewIndex) {
+      case 0:
+        return '1 dia';
+      case 1:
+        return '7 dias';
+      case 2:
+        return '15 dias';
+      case 3:
+        return '30 dias';
+      case 4:
+        return '60 dias';
+      default:
+        return '';
+    }
+  };
+
   const days = getDaysInMonth(currentDate);
   const reviewsByDate = reviews.reduce((acc: { [key: string]: Review[] }, review) => {
-    acc[review.date] = [...(acc[review.date] || []), review];
+    const dates = [review.initialDate, ...review.reviewDates];
+    dates.forEach(date => {
+      acc[date] = [...(acc[date] || []), review];
+    });
     return acc;
   }, {});
 
@@ -118,11 +142,11 @@ export default function Calendar() {
           {Object.entries(reviewsByDate).map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
-                {new Date(date).toLocaleDateString('pt-BR', {timeZone: "+00:00"})}
+                {new Date(date).toLocaleDateString('pt-BR', {timeZone: '+00:00'})}
               </Text>
               {dateReviews.map((review, index) => (
                 <Pressable
-                  key={index}
+                  key={`${review.id}-${index}`}
                   style={[
                     styles.reviewItem,
                     isReviewCompleted(review) && styles.reviewItemCompleted
@@ -150,6 +174,12 @@ export default function Calendar() {
                       isReviewCompleted(review) && styles.reviewTextCompleted
                     ]}>
                       {review.subject.name}
+                    </Text>
+                    <Text style={[
+                      styles.reviewDate,
+                      isReviewCompleted(review) && styles.reviewTextCompleted
+                    ]}>
+                      {date === review.initialDate ? 'Data inicial' : 'Data de revisão'} ({getReviewStatus(review, date)})
                     </Text>
                   </View>
                   {isReviewCompleted(review) && (
@@ -329,5 +359,10 @@ const styles = StyleSheet.create({
   },
   completedCheckmark: {
     marginLeft: 8,
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: '#94a3b8',
+    marginTop: 2,
   },
 });

@@ -24,6 +24,38 @@ interface NewReviewModalProps {
   selectedDate: Date;
 }
 
+const generateReviewDates = (initialDate: Date): string[] => {
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const dates = [];
+  const oneDayLater = new Date(initialDate);
+  oneDayLater.setDate(oneDayLater.getDate() + 1);
+  dates.push(formatDate(oneDayLater));
+
+  const sevenDaysLater = new Date(initialDate);
+  sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+  dates.push(formatDate(sevenDaysLater));
+
+  const fifteenDaysLater = new Date(initialDate);
+  fifteenDaysLater.setDate(fifteenDaysLater.getDate() + 15);
+  dates.push(formatDate(fifteenDaysLater));
+
+  const thirtyDaysLater = new Date(initialDate);
+  thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+  dates.push(formatDate(thirtyDaysLater));
+
+  const sixtyDaysLater = new Date(initialDate);
+  sixtyDaysLater.setDate(sixtyDaysLater.getDate() + 60);
+  dates.push(formatDate(sixtyDaysLater));
+
+  return dates;
+};
+
 export default function NewReviewModal({
   visible,
   onClose,
@@ -45,7 +77,8 @@ export default function NewReviewModal({
           color: selectedSubject.color
         },
         notes,
-        date: formatDate(selectedDate)
+        initialDate: formatDate(selectedDate),
+        reviewDates: generateReviewDates(selectedDate)
       };
       
       addReview(newReview);
