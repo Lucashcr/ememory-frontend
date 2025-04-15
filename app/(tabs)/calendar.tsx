@@ -82,79 +82,81 @@ export default function Calendar() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
-          <ChevronLeft size={24} color="#64748b" />
-        </Pressable>
-        <Text style={styles.monthYear}>
-          {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </Text>
-        <Pressable onPress={() => changeMonth(1)} style={styles.monthButton}>
-          <ChevronRight size={24} color="#64748b" />
-        </Pressable>
-      </View>
-
-      <View style={styles.weekDays}>
-        {DAYS.map((day) => (
-          <Text key={day} style={styles.weekDay}>
-            {day}
-          </Text>
-        ))}
-      </View>
-
-      <View style={styles.calendar}>
-        {days.map((date, index) => (
-          <Pressable
-            key={index}
-            style={styles.dayContainer}
-            onPress={() => date && handleDayPress(date)}
-          >
-            {date && (
-              <>
-                <Text style={styles.dayNumber}>{date.getDate()}</Text>
-                {mockReviews[formatDate(date)] && (
-                  <View style={styles.reviewIndicators}>
-                    {mockReviews[formatDate(date)].map(
-                      (review, reviewIndex) => (
-                        <View
-                          key={reviewIndex}
-                          style={[
-                            styles.reviewDot,
-                            { backgroundColor: review.color },
-                          ]}
-                        />
-                      )
-                    )}
-                  </View>
-                )}
-              </>
-            )}
-          </Pressable>
-        ))}
-      </View>
-
       <ScrollView style={styles.reviewList}>
-        {Object.entries(mockReviews).map(([date, reviews]) => (
-          <View key={date} style={styles.dateReviews}>
-            <Text style={styles.dateText}>
-              {new Date(date).toLocaleDateString('pt-BR')}
+        <View style={styles.header}>
+          <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
+            <ChevronLeft size={24} color="#64748b" />
+          </Pressable>
+          <Text style={styles.monthYear}>
+            {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+          </Text>
+          <Pressable onPress={() => changeMonth(1)} style={styles.monthButton}>
+            <ChevronRight size={24} color="#64748b" />
+          </Pressable>
+        </View>
+
+        <View style={styles.weekDays}>
+          {DAYS.map((day) => (
+            <Text key={day} style={styles.weekDay}>
+              {day}
             </Text>
-            {reviews.map((review, index) => (
-              <View key={index} style={styles.reviewItem}>
-                <View
-                  style={[
-                    styles.reviewColor,
-                    { backgroundColor: review.color },
-                  ]}
-                />
-                <View>
-                  <Text style={styles.reviewSubject}>{review.subject}</Text>
-                  <Text style={styles.reviewTopic}>{review.topic}</Text>
+          ))}
+        </View>
+
+        <View style={styles.calendar}>
+          {days.map((date, index) => (
+            <Pressable
+              key={index}
+              style={styles.dayContainer}
+              onPress={() => date && handleDayPress(date)}
+            >
+              {date && (
+                <>
+                  <Text style={styles.dayNumber}>{date.getDate()}</Text>
+                  {mockReviews[formatDate(date)] && (
+                    <View style={styles.reviewIndicators}>
+                      {mockReviews[formatDate(date)].map(
+                        (review, reviewIndex) => (
+                          <View
+                            key={reviewIndex}
+                            style={[
+                              styles.reviewDot,
+                              { backgroundColor: review.color },
+                            ]}
+                          />
+                        )
+                      )}
+                    </View>
+                  )}
+                </>
+              )}
+            </Pressable>
+          ))}
+        </View>
+
+        <View style={{padding: 4, marginTop: 16}}>
+          {Object.entries(mockReviews).map(([date, reviews]) => (
+            <View key={date} style={styles.dateReviews}>
+              <Text style={styles.dateText}>
+                {new Date(date).toLocaleDateString('pt-BR', {timeZone: "+00:00"})}
+              </Text>
+              {reviews.map((review, index) => (
+                <View key={index} style={styles.reviewItem}>
+                  <View
+                    style={[
+                      styles.reviewColor,
+                      { backgroundColor: review.color },
+                    ]}
+                  />
+                  <View>
+                    <Text style={styles.reviewTopic}>{review.topic}</Text>
+                    <Text style={styles.reviewSubject}>{review.subject}</Text>
+                  </View>
                 </View>
-              </View>
-            ))}
-          </View>
-        ))}
+              ))}
+            </View>
+          ))}
+        </View>
       </ScrollView>
 
       <Pressable
@@ -181,6 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8fafc',
     padding: 16,
+    gap: 8,
   },
   header: {
     flexDirection: 'row',
@@ -216,7 +219,8 @@ const styles = StyleSheet.create({
   },
   dayContainer: {
     width: `${100 / 7}%`,
-    height: 50,
+    aspectRatio: 1,
+    minHeight: 50,
     padding: 4,
     borderWidth: 0.5,
     borderColor: '#e2e8f0',
@@ -268,12 +272,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 12,
   },
-  reviewSubject: {
+  reviewTopic: {
     fontSize: 14,
     fontWeight: '500',
     color: '#1e293b',
   },
-  reviewTopic: {
+  reviewSubject : {
     fontSize: 12,
     color: '#64748b',
   },
