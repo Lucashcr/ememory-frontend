@@ -85,6 +85,11 @@ export default function Calendar() {
   }, {});
 
   const sortedReviewDates = Object.entries(reviewsByDate)
+    .filter(([date]) => {
+      const reviewDate = new Date(date);
+      return reviewDate.getUTCMonth() === currentDate.getUTCMonth() && 
+             reviewDate.getUTCFullYear() === currentDate.getUTCFullYear();
+    })
     .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime());
 
   return (
