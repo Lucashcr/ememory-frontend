@@ -150,7 +150,7 @@ export default function Calendar() {
           {sortedReviewDates.map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
-                {new Date(date).toLocaleDateString('pt-BR', {timeZone: '+00:00'})}
+                {new Date(date).toLocaleDateString('pt-BR')}
               </Text>
               {dateReviews.map((review, index) => (
                 <Pressable

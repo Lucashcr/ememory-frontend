@@ -59,13 +59,13 @@ export default function ReviewDetails({ review, visible, onClose, isCompleted, o
             
             <Text style={[styles.notesLabel, { marginTop: 16 }]}>Data inicial:</Text>
             <Text style={styles.dateText}>
-              {new Date(review.initialDate).toLocaleDateString('pt-BR', { timeZone: '+00:00' })} ({getReviewStatus(review.initialDate, review.reviewDates, review.initialDate)})
+              {new Date(review.initialDate).toLocaleDateString('pt-BR')} ({getReviewStatus(review.initialDate, review.reviewDates, review.initialDate)})
             </Text>
 
             <Text style={[styles.notesLabel, { marginTop: 16 }]}>Datas de revisão:</Text>
             {review.reviewDates.map((date, index) => (
               <Text key={index} style={styles.dateText}>
-                {new Date(date).toLocaleDateString('pt-BR', { timeZone: '+00:00' })} ({getReviewStatus(review.initialDate, review.reviewDates, date)})
+                {new Date(date).toLocaleDateString('pt-BR')} ({getReviewStatus(review.initialDate, review.reviewDates, date)})
               </Text>
             ))}
           </View>
