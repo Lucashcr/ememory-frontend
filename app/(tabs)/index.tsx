@@ -38,7 +38,7 @@ export default function DailyReviews() {
 
   const reviewTypeText = (review: Review) => {
     if (review.initialDate === todayStr) {
-      return `Data inicial (${getReviewStatus(review, todayStr)})`;
+      return `Data inicial`;
     }
     return `Data de revisão (${getReviewStatus(review, todayStr)})`;
   };

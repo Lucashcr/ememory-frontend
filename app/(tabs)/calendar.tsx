@@ -187,7 +187,7 @@ export default function Calendar() {
                       styles.reviewDate,
                       isReviewCompleted(review) && styles.reviewTextCompleted
                     ]}>
-                      {date === review.initialDate ? 'Data inicial' : 'Data de revisão'} ({getReviewStatus(review, date)})
+                      {date === review.initialDate ? 'Data inicial' : `Data de revisão (${getReviewStatus(review, date)})`}
                     </Text>
                   </View>
                   {isReviewCompleted(review) && (
