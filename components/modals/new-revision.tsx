@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useReviews } from '@/contexts/ReviewsContext';
 
 const mockSubjects = [
   { id: '1', name: 'Matemática', color: '#ef4444' },
@@ -28,18 +29,24 @@ export default function NewReviewModal({
   onClose,
   selectedDate,
 }: NewReviewModalProps) {
+  const { addReview, formatDate } = useReviews();
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [notes, setNotes] = useState('');
 
   const handleSubmit = () => {
-    // Here you would typically save the new review
-    console.log({
-      title,
-      subject,
-      notes,
-      date: selectedDate.toISOString(),
-    });
+    const selectedSubject = mockSubjects.find(s => s.id === subject);
+    if (selectedSubject) {
+      const newReview = {
+        id: Date.now().toString(),
+        topic: title,
+        subject: selectedSubject.name,
+        color: selectedSubject.color,
+        notes,
+      };
+      
+      addReview(formatDate(selectedDate), newReview);
+    }
 
     // Reset form and close modal
     setTitle('');

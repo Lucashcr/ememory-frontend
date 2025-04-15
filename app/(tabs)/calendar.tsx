@@ -1,40 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react-native';
 import NewReviewModal from '@/components/modals/new-revision';
+import ReviewDetails from '@/components/modals/review-details';
+import { useReviews, Review } from '@/contexts/ReviewsContext';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
 
-type Review = { subject: string; topic: string; color: string };
-
-const mockReviews: Record<string, Review[]> = {
-  '2024-02-15': [
-    { subject: 'Matemática', topic: 'Funções Quadráticas', color: '#ef4444' },
-    { subject: 'Física', topic: 'Leis de Newton', color: '#3b82f6' },
-  ],
-  '2024-02-20': [
-    { subject: 'Química', topic: 'Tabela Periódica', color: '#22c55e' },
-  ],
-};
-
 export default function Calendar() {
+  const { reviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -64,13 +47,6 @@ export default function Calendar() {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() + increment);
     setCurrentDate(newDate);
-  };
-
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
   };
 
   const handleDayPress = (date: Date) => {
@@ -113,10 +89,10 @@ export default function Calendar() {
               {date && (
                 <>
                   <Text style={styles.dayNumber}>{date.getDate()}</Text>
-                  {mockReviews[formatDate(date)] && (
+                  {reviews[formatDate(date)] && (
                     <View style={styles.reviewIndicators}>
-                      {mockReviews[formatDate(date)].map(
-                        (review, reviewIndex) => (
+                      {reviews[formatDate(date)].map(
+                        (review: Review, reviewIndex: number) => (
                           <View
                             key={reviewIndex}
                             style={[
@@ -135,24 +111,49 @@ export default function Calendar() {
         </View>
 
         <View style={{padding: 4, marginTop: 16}}>
-          {Object.entries(mockReviews).map(([date, reviews]) => (
+          {Object.entries(reviews).map(([date, dateReviews]: [string, Review[]]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
                 {new Date(date).toLocaleDateString('pt-BR', {timeZone: "+00:00"})}
               </Text>
-              {reviews.map((review, index) => (
-                <View key={index} style={styles.reviewItem}>
+              {dateReviews.map((review, index) => (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.reviewItem,
+                    isReviewCompleted(review, date) && styles.reviewItemCompleted
+                  ]}
+                  onPress={() => {
+                    setSelectedReview(review);
+                    setReviewDetailsVisible(true);
+                  }}
+                >
                   <View
                     style={[
                       styles.reviewColor,
                       { backgroundColor: review.color },
                     ]}
                   />
-                  <View>
-                    <Text style={styles.reviewTopic}>{review.topic}</Text>
-                    <Text style={styles.reviewSubject}>{review.subject}</Text>
+                  <View style={styles.reviewContent}>
+                    <Text style={[
+                      styles.reviewTopic,
+                      isReviewCompleted(review, date) && styles.reviewTextCompleted
+                    ]}>
+                      {review.topic}
+                    </Text>
+                    <Text style={[
+                      styles.reviewSubject,
+                      isReviewCompleted(review, date) && styles.reviewTextCompleted
+                    ]}>
+                      {review.subject}
+                    </Text>
                   </View>
-                </View>
+                  {isReviewCompleted(review, date) && (
+                    <View style={styles.completedCheckmark}>
+                      <Check size={16} color="#22c55e" />
+                    </View>
+                  )}
+                </Pressable>
               ))}
             </View>
           ))}
@@ -173,6 +174,20 @@ export default function Calendar() {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         selectedDate={selectedDate}
+      />
+
+      <ReviewDetails
+        review={selectedReview}
+        visible={reviewDetailsVisible}
+        onClose={() => setReviewDetailsVisible(false)}
+        isCompleted={!!selectedReview && isReviewCompleted(selectedReview, formatDate(currentDate))}
+        onToggleComplete={(id: string) => {
+          const date = formatDate(currentDate);
+          const review = reviews[date]?.find((r: Review) => r.id === id);
+          if (review) {
+            toggleReview(date, review);
+          }
+        }}
       />
     </View>
   );
@@ -296,5 +311,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  reviewItemCompleted: {
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  reviewTextCompleted: {
+    color: '#94a3b8',
+    textDecorationLine: 'line-through',
+  },
+  reviewContent: {
+    flex: 1,
+  },
+  completedCheckmark: {
+    marginLeft: 8,
   },
 });

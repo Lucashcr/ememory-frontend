@@ -2,54 +2,27 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Check } from 'lucide-react-native';
 import ReviewDetails from '@/components/modals/review-details';
-
-// Mock data for daily reviews
-const mockReviews = [
-  {
-    id: '1',
-    topic: 'Funções Quadráticas',
-    subject: 'Matemática',
-    color: '#ef4444',
-    notes: 'Revisar gráficos de funções quadráticas e suas propriedades. Focar em vértice, concavidade e raízes.',
-  },
-  {
-    id: '2',
-    topic: 'Leis de Newton',
-    subject: 'Física',
-    color: '#3b82f6',
-    notes: 'Estudar as três leis de Newton e suas aplicações práticas. Resolver exercícios de força e movimento.',
-  },
-  {
-    id: '3',
-    topic: 'Tabela Periódica',
-    subject: 'Química',
-    color: '#22c55e',
-    notes: 'Memorizar as principais famílias e suas características. Revisar propriedades periódicas.',
-  },
-];
+import { useReviews, Review } from '@/contexts/ReviewsContext';
 
 export default function DailyReviews() {
-  const [completedReviews, setCompletedReviews] = useState<string[]>([]);
-  const [selectedReview, setSelectedReview] = useState<typeof mockReviews[0] | null>(null);
+  const { getDailyReviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  
+  const today = new Date();
+  const dailyReviews = getDailyReviews(today);
 
-  const toggleReview = (id: string) => {
-    setCompletedReviews(prev =>
-      prev.includes(id)
-        ? prev.filter(reviewId => reviewId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const openReviewDetails = (review: typeof mockReviews[0]) => {
+  const openReviewDetails = (review: Review) => {
     setSelectedReview(review);
     setModalVisible(true);
   };
 
+  const todayStr = formatDate(today);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {mockReviews.map(review => (
+        {dailyReviews.map(review => (
           <Pressable
             key={review.id}
             style={[styles.reviewItem]}
@@ -57,11 +30,11 @@ export default function DailyReviews() {
             <Pressable
               onPress={(e) => {
                 e.stopPropagation();
-                toggleReview(review.id);
+                toggleReview(todayStr, review);
               }}
               style={styles.checkboxContainer}>
-              <View style={[styles.checkbox, completedReviews.includes(review.id) && styles.checkboxChecked]}>
-                {completedReviews.includes(review.id) && (
+              <View style={[styles.checkbox, isReviewCompleted(review, todayStr) && styles.checkboxChecked]}>
+                {isReviewCompleted(review, todayStr) && (
                   <Check size={16} color="#fff" />
                 )}
               </View>
@@ -81,8 +54,13 @@ export default function DailyReviews() {
         review={selectedReview}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        isCompleted={selectedReview ? completedReviews.includes(selectedReview.id) : false}
-        onToggleComplete={toggleReview}
+        isCompleted={selectedReview ? isReviewCompleted(selectedReview, todayStr) : false}
+        onToggleComplete={(id) => {
+          const review = dailyReviews.find(r => r.id === id);
+          if (review) {
+            toggleReview(todayStr, review);
+          }
+        }}
       />
     </View>
   );
