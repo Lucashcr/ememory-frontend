@@ -53,6 +53,10 @@ export default function Calendar() {
       days.push(new Date(year, month, i));
     }
 
+    for (let i = lastDay.getDay() + 1; i < 7; i++) {
+      days.push(null);
+    }
+
     return days;
   };
 
