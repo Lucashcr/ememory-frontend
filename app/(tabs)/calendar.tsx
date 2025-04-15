@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   dayContainer: {
     width: `${100 / 7}%`,
-    aspectRatio: 1,
+    height: 50,
     padding: 4,
     borderWidth: 0.5,
     borderColor: '#e2e8f0',
