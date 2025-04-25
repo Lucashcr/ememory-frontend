@@ -11,25 +11,25 @@ export default function DailyReviews() {
   
   const today = new Date();
   const todayStr = formatDate(today);
+  
   const dailyReviews = reviews.filter(review => 
-    review.initialDate === todayStr || review.reviewDates.includes(todayStr)
+    review.review_dates.some(rd => rd.scheduled_for === todayStr && rd.status === 'pending')
   );
 
   const getReviewStatus = (review: Review, date: string) => {
-    if (date === review.initialDate) {
-      return 'Inicial';
-    }
-    const reviewIndex = review.reviewDates.indexOf(date);
+    const reviewIndex = review.review_dates.findIndex(rd => rd.scheduled_for === date);
     switch (reviewIndex) {
       case 0:
-        return '1 dia';
+        return 'Inicial';
       case 1:
-        return '7 dias';
+        return '1 dia';
       case 2:
-        return '15 dias';
+        return '7 dias';
       case 3:
-        return '30 dias';
+        return '15 dias';
       case 4:
+        return '30 dias';
+      case 5:
         return '60 dias';
       default:
         return '';
@@ -37,9 +37,6 @@ export default function DailyReviews() {
   };
 
   const reviewTypeText = (review: Review) => {
-    if (review.initialDate === todayStr) {
-      return `Data inicial`;
-    }
     return `Data de revisão (${getReviewStatus(review, todayStr)})`;
   };
 
@@ -84,7 +81,6 @@ export default function DailyReviews() {
         review={selectedReview}
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        isCompleted={selectedReview ? isReviewCompleted(selectedReview) : false}
         onToggleComplete={(id) => {
           const review = dailyReviews.find(r => r.id === id);
           if (review) {

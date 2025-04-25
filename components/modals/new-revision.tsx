@@ -73,8 +73,16 @@ export default function NewReviewModal({
           color: selectedSubject.color
         },
         notes,
-        initialDate: formatDate(selectedDate),
-        reviewDates: generateReviewDates(selectedDate)
+        review_dates: [
+          {
+            scheduled_for: formatDate(selectedDate),
+            status: 'pending' as const
+          },
+          ...generateReviewDates(selectedDate).map(date => ({
+            scheduled_for: date,
+            status: 'pending' as const
+          }))
+        ]
       };
       
       addReview(newReview);

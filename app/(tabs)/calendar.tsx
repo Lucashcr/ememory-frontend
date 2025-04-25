@@ -7,12 +7,22 @@ import { useReviews, Review } from '@/contexts/ReviewsContext';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
 ];
 
 export default function Calendar() {
-  const { reviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
+  const { reviews, formatDate, toggleReview } = useReviews();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
@@ -55,42 +65,59 @@ export default function Calendar() {
   };
 
   const getReviewStatus = (review: Review, date: string) => {
-    if (date === review.initialDate) {
-      return 'Inicial';
-    }
-    const reviewIndex = review.reviewDates.indexOf(date);
+    const reviewIndex = review.review_dates.findIndex(
+      (rd) => rd.scheduled_for === date
+    );
     switch (reviewIndex) {
       case 0:
-        return '1 dia';
+        return 'Inicial';
       case 1:
-        return '7 dias';
+        return '1 dia';
       case 2:
-        return '15 dias';
+        return '7 dias';
       case 3:
-        return '30 dias';
+        return '15 dias';
       case 4:
+        return '30 dias';
+      case 5:
         return '60 dias';
       default:
         return '';
     }
   };
 
+  const isReviewCompleted = (review: Review, date: string) => {
+    const reviewDate = review.review_dates.find(
+      (rd) => rd.scheduled_for === date
+    );
+    return reviewDate?.status === 'completed';
+  };
+
   const days = getDaysInMonth(currentDate);
   const reviewsByDate = reviews.reduce((acc: { [key: string]: Review[] }, review) => {
-    const dates = [review.initialDate, ...review.reviewDates];
-    dates.forEach(date => {
-      acc[date] = [...(acc[date] || []), review];
+    review.review_dates.forEach(rd => {
+      if (rd.status === 'pending') {
+        const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
+        if (reviewDate.getMonth() === currentDate.getMonth() &&
+            reviewDate.getFullYear() === currentDate.getFullYear()) {
+          acc[rd.scheduled_for] = [...(acc[rd.scheduled_for] || []), review];
+        }
+      }
     });
     return acc;
   }, {});
 
   const sortedReviewDates = Object.entries(reviewsByDate)
     .filter(([date]) => {
-      const reviewDate = new Date(date);
-      return reviewDate.getUTCMonth() === currentDate.getUTCMonth() && 
-             reviewDate.getUTCFullYear() === currentDate.getUTCFullYear();
+      const reviewDate = new Date(date + 'T00:00:00');
+      return reviewDate.getMonth() === currentDate.getMonth() && 
+             reviewDate.getFullYear() === currentDate.getFullYear();
     })
-    .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime());
+    .sort(([dateA], [dateB]) => {
+      const dateAObj = new Date(dateA + 'T00:00:00');
+      const dateBObj = new Date(dateB + 'T00:00:00');
+      return dateAObj.getTime() - dateBObj.getTime();
+    });
 
   return (
     <View style={styles.container}>
@@ -146,7 +173,7 @@ export default function Calendar() {
           ))}
         </View>
 
-        <View style={{padding: 4, marginTop: 16}}>
+        <View style={{ padding: 4, marginTop: 16 }}>
           {sortedReviewDates.map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
@@ -157,10 +184,13 @@ export default function Calendar() {
                   key={`${review.id}-${index}`}
                   style={[
                     styles.reviewItem,
-                    isReviewCompleted(review) && styles.reviewItemCompleted
+                    isReviewCompleted(review, date) &&
+                      styles.reviewItemCompleted,
                   ]}
                   onPress={() => {
                     setSelectedReview(review);
+                    // Atualiza a data selecionada para a data da revisão
+                    setSelectedDate(new Date(date + 'T00:00:00'));
                     setReviewDetailsVisible(true);
                   }}
                 >
@@ -171,26 +201,35 @@ export default function Calendar() {
                     ]}
                   />
                   <View style={styles.reviewContent}>
-                    <Text style={[
-                      styles.reviewTopic,
-                      isReviewCompleted(review) && styles.reviewTextCompleted
-                    ]}>
+                    <Text
+                      style={[
+                        styles.reviewTopic,
+                        isReviewCompleted(review, date) &&
+                          styles.reviewTextCompleted,
+                      ]}
+                    >
                       {review.topic}
                     </Text>
-                    <Text style={[
-                      styles.reviewSubject,
-                      isReviewCompleted(review) && styles.reviewTextCompleted
-                    ]}>
+                    <Text
+                      style={[
+                        styles.reviewSubject,
+                        isReviewCompleted(review, date) &&
+                          styles.reviewTextCompleted,
+                      ]}
+                    >
                       {review.subject.name}
                     </Text>
-                    <Text style={[
-                      styles.reviewDate,
-                      isReviewCompleted(review) && styles.reviewTextCompleted
-                    ]}>
-                      {date === review.initialDate ? 'Data inicial' : `Data de revisão (${getReviewStatus(review, date)})`}
+                    <Text
+                      style={[
+                        styles.reviewDate,
+                        isReviewCompleted(review, date) &&
+                          styles.reviewTextCompleted,
+                      ]}
+                    >
+                      Data de revisão ({getReviewStatus(review, date)})
                     </Text>
                   </View>
-                  {isReviewCompleted(review) && (
+                  {isReviewCompleted(review, date) && (
                     <View style={styles.completedCheckmark}>
                       <Check size={16} color="#22c55e" />
                     </View>
@@ -222,7 +261,7 @@ export default function Calendar() {
         review={selectedReview}
         visible={reviewDetailsVisible}
         onClose={() => setReviewDetailsVisible(false)}
-        isCompleted={!!selectedReview && isReviewCompleted(selectedReview)}
+        currentDate={formatDate(selectedDate)}
         onToggleComplete={(id: string) => {
           const review = reviews.find((r) => r.id === id);
           if (review) {
@@ -333,7 +372,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1e293b',
   },
-  reviewSubject : {
+  reviewSubject: {
     fontSize: 12,
     color: '#64748b',
   },

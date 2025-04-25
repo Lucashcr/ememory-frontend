@@ -1,46 +1,35 @@
-import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { Check, X } from "lucide-react-native";
-import { Review } from "@/contexts/ReviewsContext";
+import React from 'react';
+import { View, Text, Modal, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { X } from 'lucide-react-native';
+import type { Review } from '@/contexts/ReviewsContext';
 
-export interface ReviewDetailsProps {
+interface ReviewDetailsProps {
   review: Review | null;
   visible: boolean;
   onClose: () => void;
-  isCompleted: boolean;
   onToggleComplete: (id: string) => void;
+  currentDate?: string;
 }
 
-export default function ReviewDetails({ review, visible, onClose, isCompleted, onToggleComplete }: ReviewDetailsProps) {
-  if (!review) return null;
+export default function ReviewDetails({
+  review,
+  visible,
+  onClose,
+  onToggleComplete,
+  currentDate,
+}: ReviewDetailsProps) {
+  if (!review || !currentDate) return null;
 
-  const getReviewStatus = (initialDate: string, reviewDates: string[], date: string) => {
-    if (date === initialDate) {
-      return 'Inicial';
-    }
-    const reviewIndex = reviewDates.indexOf(date);
-    switch (reviewIndex) {
-      case 0:
-        return '1 dia';
-      case 1:
-        return '7 dias';
-      case 2:
-        return '15 dias';
-      case 3:
-        return '30 dias';
-      case 4:
-        return '60 dias';
-      default:
-        return '';
-    }
-  };
+  const reviewDate = review.review_dates.find(rd => rd.scheduled_for === currentDate);
+  const isCompleted = reviewDate?.status === 'completed' || false;
 
   return (
     <Modal
-      animationType="fade"
-      transparent={true}
       visible={visible}
-      onRequestClose={onClose}>
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
@@ -53,27 +42,32 @@ export default function ReviewDetails({ review, visible, onClose, isCompleted, o
               <X size={24} color="#64748b" />
             </Pressable>
           </View>
-          <View style={styles.modalBody}>
+          <ScrollView style={styles.modalBody}>
             <Text style={styles.notesLabel}>Observações:</Text>
             <Text style={styles.notesText}>{review.notes}</Text>
-            
-            <Text style={[styles.notesLabel, { marginTop: 16 }]}>Data inicial:</Text>
-            <Text style={styles.dateText}>
-              {new Date(review.initialDate).toLocaleDateString('pt-BR')} ({getReviewStatus(review.initialDate, review.reviewDates, review.initialDate)})
-            </Text>
 
             <Text style={[styles.notesLabel, { marginTop: 16 }]}>Datas de revisão:</Text>
-            {review.reviewDates.map((date, index) => (
-              <Text key={index} style={styles.dateText}>
-                {new Date(date).toLocaleDateString('pt-BR')} ({getReviewStatus(review.initialDate, review.reviewDates, date)})
-              </Text>
+            {review.review_dates.map((date, index) => (
+              <View 
+                key={index} 
+                style={[
+                  styles.dateRow,
+                  date.scheduled_for === currentDate ? styles.currentDateRow : undefined
+                ]}
+              >
+                <Text style={[
+                  styles.dateText,
+                  date.scheduled_for === currentDate ? styles.currentDateText : undefined
+                ]}>
+                  {new Date(date.scheduled_for).toLocaleDateString('pt-BR')} ({date.status})
+                </Text>
+              </View>
             ))}
-          </View>
+          </ScrollView>
           <View style={styles.modalFooter}>
             <Pressable
               style={[styles.completeButton, isCompleted && styles.completeButtonActive]}
               onPress={() => onToggleComplete(review.id)}>
-              <Check size={20} color={isCompleted ? '#fff' : '#6366f1'} />
               <Text style={[styles.completeButtonText, isCompleted && styles.completeButtonTextActive]}>
                 {isCompleted ? 'Concluída' : 'Marcar como concluída'}
               </Text>
@@ -175,9 +169,23 @@ const styles = StyleSheet.create({
   completeButtonTextActive: {
     color: '#fff',
   },
+  dateRow: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#f8fafc',
+  },
+  currentDateRow: {
+    backgroundColor: '#e3e1f1',
+    borderWidth: 1,
+    borderColor: '#6366f1',
+  },
   dateText: {
     fontSize: 16,
-    color: '#334155',
-    marginBottom: 4,
+    color: '#64748b',
+  },
+  currentDateText: {
+    color: '#6366f1',
+    fontWeight: '600',
   },
 });
