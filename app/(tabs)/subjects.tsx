@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import { useSubjects } from '@/contexts/SubjectsContext';
+import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
 
 const COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16',
@@ -14,12 +15,20 @@ export default function Subjects() {
   const [newSubject, setNewSubject] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [isAdding, setIsAdding] = useState(false);
+  const [subjectToDelete, setSubjectToDelete] = useState<{id: string, name: string} | null>(null);
 
   const handleAddSubject = () => {
     if (newSubject.trim()) {
       addSubject(newSubject.trim(), selectedColor);
       setNewSubject('');
       setIsAdding(false);
+    }
+  };
+
+  const handleDeleteSubject = async () => {
+    if (subjectToDelete) {
+      await removeSubject(subjectToDelete.id);
+      setSubjectToDelete(null);
     }
   };
 
@@ -31,7 +40,7 @@ export default function Subjects() {
             <View style={[styles.colorIndicator, { backgroundColor: subject.color }]} />
             <Text style={styles.subjectName}>{subject.name}</Text>
             <Pressable
-              onPress={() => removeSubject(subject.id)}
+              onPress={() => setSubjectToDelete({ id: subject.id, name: subject.name })}
               style={styles.removeButton}>
               <X size={20} color="#64748b" />
             </Pressable>
@@ -71,6 +80,13 @@ export default function Subjects() {
           <Text style={styles.addButtonText}>Nova Disciplina</Text>
         </Pressable>
       )}
+
+      <DeleteSubjectConfirmation
+        visible={!!subjectToDelete}
+        onClose={() => setSubjectToDelete(null)}
+        onConfirm={handleDeleteSubject}
+        subjectName={subjectToDelete?.name ?? ''}
+      />
     </View>
   );
 }
