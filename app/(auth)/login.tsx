@@ -11,13 +11,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await api.post('/auth/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const response = await api.post('/auth/token', { username, password });
       
       if (response.status !== 200) {
         throw new Error(response.data.message || 'Erro ao fazer login');
