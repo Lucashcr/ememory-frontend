@@ -4,27 +4,18 @@ import { ChevronLeft, ChevronRight, Plus, Check, Ban } from 'lucide-react-native
 import NewReviewModal from '@/components/modals/new-revision';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
+import { formatDateString, formatDateToLocalString } from '@/services/dateUtils';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
 export default function Calendar() {
-  const { reviews, formatDate, toggleReview } = useReviews();
+  const { reviews, toggleReview } = useReviews();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
@@ -43,10 +34,12 @@ export default function Calendar() {
     }
 
     for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push(new Date(year, month, i));
+      const currentDay = new Date(year, month, i);
+      days.push(formatDateString(currentDay));
     }
 
-    for (let i = lastDay.getDay() + 1; i < 7; i++) {
+    const lastDayOfWeek = lastDay.getDay();
+    for (let i = lastDayOfWeek + 1; i < 7; i++) {
       days.push(null);
     }
 
@@ -59,8 +52,8 @@ export default function Calendar() {
     setCurrentDate(newDate);
   };
 
-  const handleDayPress = (date: Date) => {
-    setSelectedDate(date);
+  const handleDayPress = (dateStr: string) => {
+    setSelectedDate(dateStr);
     setModalVisible(true);
   };
 
@@ -111,11 +104,7 @@ export default function Calendar() {
       return reviewDate.getMonth() === currentDate.getMonth() && 
              reviewDate.getFullYear() === currentDate.getFullYear();
     })
-    .sort(([dateA], [dateB]) => {
-      const dateAObj = new Date(dateA + 'T00:00:00');
-      const dateBObj = new Date(dateB + 'T00:00:00');
-      return dateAObj.getTime() - dateBObj.getTime();
-    });
+    .sort(([dateA], [dateB]) => dateA.localeCompare(dateB));
 
   return (
     <View style={styles.container}>
@@ -141,18 +130,20 @@ export default function Calendar() {
         </View>
 
         <View style={styles.calendar}>
-          {days.map((date, index) => (
+          {days.map((dateStr, index) => (
             <Pressable
               key={index}
               style={styles.dayContainer}
-              onPress={() => date && handleDayPress(date)}
+              onPress={() => dateStr && handleDayPress(dateStr)}
             >
-              {date && (
+              {dateStr && (
                 <>
-                  <Text style={styles.dayNumber}>{date.getDate()}</Text>
-                  {reviewsByDate[formatDate(date)] && (
+                  <Text style={styles.dayNumber}>
+                    {new Date(dateStr + 'T00:00:00').getDate()}
+                  </Text>
+                  {reviewsByDate[dateStr] && (
                     <View style={styles.reviewIndicators}>
-                      {reviewsByDate[formatDate(date)].map(
+                      {reviewsByDate[dateStr].map(
                         (review, reviewIndex) => (
                           <View
                             key={reviewIndex}
@@ -175,7 +166,7 @@ export default function Calendar() {
           {sortedReviewDates.map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
-                {new Date(date).toLocaleDateString('pt-BR')}
+                {formatDateToLocalString(date)}
               </Text>
               {dateReviews.map((review, index) => {
                 const isCompleted = isReviewCompleted(review, date);
@@ -193,7 +184,7 @@ export default function Calendar() {
                     ]}
                     onPress={() => {
                       setSelectedReview(review);
-                      setSelectedDate(new Date(date + 'T00:00:00'));
+                      setSelectedDate(date);
                       setReviewDetailsVisible(true);
                     }}
                   >
@@ -253,7 +244,7 @@ export default function Calendar() {
       <Pressable
         style={styles.fab}
         onPress={() => {
-          setSelectedDate(new Date());
+          setSelectedDate(formatDateString(new Date()));
           setModalVisible(true);
         }}
       >
@@ -270,7 +261,7 @@ export default function Calendar() {
         review={selectedReview}
         visible={reviewDetailsVisible}
         onClose={() => setReviewDetailsVisible(false)}
-        currentDate={formatDate(selectedDate)}
+        currentDate={selectedDate}
         onToggleComplete={(id: string) => {
           const review = reviews.find((r) => r.id === id);
           if (review) {

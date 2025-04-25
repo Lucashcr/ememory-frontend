@@ -1,13 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import api from '../services/api';
-
-// Move formatDate outside component to avoid dependency cycle
-const formatDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0'); // Corrigindo timezone removendo UTCDate
-  return `${year}-${month}-${day}`;
-};
+import { formatDateString, getCurrentDate } from '../services/dateUtils';
 
 export type ReviewDate = {
   scheduled_for: string;
@@ -39,8 +32,8 @@ type ReviewsContextType = {
   isReviewSkipped: (review: Review) => boolean;
   toggleReview: (review: Review) => Promise<void>;
   addReview: (review: NewReview) => Promise<void>;
-  getDailyReviews: (date: Date) => Review[];
-  formatDate: (date: Date) => string;
+  getDailyReviews: (date: string) => Review[];
+  formatDate: (date: string | Date) => string;
   isLoading: boolean;
 };
 
@@ -55,11 +48,10 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.get('/reviews/');
       
-      // Garante que os dados são um array
       const reviewsData = Array.isArray(response.data) ? response.data : [];
       setReviews(reviewsData);
       
-      const today = formatDate(new Date());
+      const today = getCurrentDate();
       const completed = reviewsData
         .filter((review: Review) => 
           review.review_dates.some(date => 
@@ -80,14 +72,14 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
   }, [fetchReviews]);
 
   const isReviewCompleted = (review: Review) => {
-    const today = formatDate(new Date());
+    const today = getCurrentDate();
     return review.review_dates.some(date => 
       date.scheduled_for === today && date.status === 'completed'
     );
   };
 
   const isReviewSkipped = (review: Review) => {
-    const today = formatDate(new Date());
+    const today = getCurrentDate();
     return review.review_dates.some(date => 
       date.scheduled_for === today && date.status === 'skipped'
     );
@@ -95,14 +87,13 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
 
   const toggleReview = async (review: Review) => {
     const reviewId = review.id;
-    const currentDate = formatDate(new Date());
+    const currentDate = getCurrentDate();
     
     try {
       const currentStatus = review.review_dates.find(
         date => date.scheduled_for === currentDate
       )?.status;
 
-      // Define o próximo status baseado no status atual
       let newStatus: 'pending' | 'completed' | 'skipped';
       if (currentStatus === 'completed') {
         newStatus = 'pending';
@@ -123,7 +114,6 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
           : prev.filter(id => id !== reviewId)
       );
 
-      // Update local review data
       setReviews(prev => prev.map(r => {
         if (r.id === reviewId) {
           return {
@@ -152,11 +142,10 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getDailyReviews = (date: Date) => {
-    const dateStr = formatDate(date);
+  const getDailyReviews = (date: string) => {
     return reviews.filter(review =>
       review.review_dates.some(
-        reviewDate => reviewDate.scheduled_for === dateStr
+        reviewDate => reviewDate.scheduled_for === date
       )
     );
   };
@@ -169,7 +158,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     toggleReview,
     addReview,
     getDailyReviews,
-    formatDate,
+    formatDate: formatDateString,
     isLoading,
   };
 

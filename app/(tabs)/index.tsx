@@ -3,17 +3,17 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Check } from 'lucide-react-native';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
+import { getCurrentDate } from '@/services/dateUtils';
 
 export default function DailyReviews() {
-  const { reviews, isReviewCompleted, toggleReview, formatDate } = useReviews();
+  const { reviews, isReviewCompleted, toggleReview } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   
-  const today = new Date();
-  const todayStr = formatDate(today);
+  const today = getCurrentDate();
   
   const dailyReviews = reviews.filter(review => 
-    review.review_dates.some(rd => rd.scheduled_for === todayStr)
+    review.review_dates.some(rd => rd.scheduled_for === today)
   );
 
   const getReviewStatus = (review: Review, date: string) => {
@@ -37,7 +37,7 @@ export default function DailyReviews() {
   };
 
   const reviewTypeText = (review: Review) => {
-    return `Data de revisão (${getReviewStatus(review, todayStr)})`;
+    return `Data de revisão (${getReviewStatus(review, today)})`;
   };
 
   const openReviewDetails = (review: Review) => {
@@ -50,7 +50,7 @@ export default function DailyReviews() {
       <ScrollView style={styles.scrollView}>
         {dailyReviews.map(review => {
           const reviewDate = review.review_dates.find(
-            rd => rd.scheduled_for === todayStr
+            rd => rd.scheduled_for === today
           );
           const isSkipped = reviewDate?.status === 'skipped';
           const isPending = reviewDate?.status === 'pending';
@@ -120,7 +120,7 @@ export default function DailyReviews() {
             toggleReview(review);
           }
         }}
-        currentDate={todayStr}
+        currentDate={today}
       />
     </View>
   );

@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
+import { formatDateToLocalString } from '@/services/dateUtils';
 
 interface NewReviewModalProps {
   visible: boolean;
   onClose: () => void;
-  selectedDate: Date;
+  selectedDate: string;
 }
 
 export default function NewReviewModal({
@@ -24,7 +25,7 @@ export default function NewReviewModal({
   onClose,
   selectedDate,
 }: NewReviewModalProps) {
-  const { addReview, formatDate } = useReviews();
+  const { addReview } = useReviews();
   const { subjects } = useSubjects();
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
@@ -37,7 +38,7 @@ export default function NewReviewModal({
         topic: title,
         subject_id: selectedSubject.id,
         notes,
-        initial_date: formatDate(selectedDate),
+        initial_date: selectedDate,
       };
       
       addReview(newReview);
@@ -96,7 +97,7 @@ export default function NewReviewModal({
             <View style={styles.formGroup}>
               <Text style={styles.label}>Data</Text>
               <Text style={styles.dateText}>
-                {selectedDate.toLocaleDateString('pt-BR')}
+                {formatDateToLocalString(selectedDate)}
               </Text>
             </View>
 

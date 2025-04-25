@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { X } from 'lucide-react-native';
+import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
 import type { Review } from '@/contexts/ReviewsContext';
 
 interface ReviewDetailsProps {
@@ -24,7 +25,7 @@ export default function ReviewDetails({
   const isCompleted = reviewDate?.status === 'completed';
   const isPending = reviewDate?.status === 'pending';
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getCurrentDate();
   const canToggleComplete = isPending && currentDate === today;
 
   return (
@@ -65,7 +66,7 @@ export default function ReviewDetails({
                   date.scheduled_for === currentDate ? styles.currentDateText : undefined,
                   date.status === 'skipped' ? styles.skippedDateText : undefined
                 ]}>
-                  {new Date(date.scheduled_for).toLocaleDateString('pt-BR')} ({date.status})
+                  {formatDateToLocalString(date.scheduled_for)} ({date.status})
                 </Text>
               </View>
             ))}
