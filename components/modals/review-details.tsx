@@ -21,7 +21,11 @@ export default function ReviewDetails({
   if (!review || !currentDate) return null;
 
   const reviewDate = review.review_dates.find(rd => rd.scheduled_for === currentDate);
-  const isCompleted = reviewDate?.status === 'completed' || false;
+  const isCompleted = reviewDate?.status === 'completed';
+  const isPending = reviewDate?.status === 'pending';
+
+  const today = new Date().toISOString().split('T')[0];
+  const canToggleComplete = isPending && currentDate === today;
 
   return (
     <Modal
@@ -52,12 +56,14 @@ export default function ReviewDetails({
                 key={index} 
                 style={[
                   styles.dateRow,
-                  date.scheduled_for === currentDate ? styles.currentDateRow : undefined
+                  date.scheduled_for === currentDate ? styles.currentDateRow : undefined,
+                  date.status === 'skipped' ? styles.skippedDateRow : undefined
                 ]}
               >
                 <Text style={[
                   styles.dateText,
-                  date.scheduled_for === currentDate ? styles.currentDateText : undefined
+                  date.scheduled_for === currentDate ? styles.currentDateText : undefined,
+                  date.status === 'skipped' ? styles.skippedDateText : undefined
                 ]}>
                   {new Date(date.scheduled_for).toLocaleDateString('pt-BR')} ({date.status})
                 </Text>
@@ -65,13 +71,24 @@ export default function ReviewDetails({
             ))}
           </ScrollView>
           <View style={styles.modalFooter}>
-            <Pressable
-              style={[styles.completeButton, isCompleted && styles.completeButtonActive]}
-              onPress={() => onToggleComplete(review.id)}>
-              <Text style={[styles.completeButtonText, isCompleted && styles.completeButtonTextActive]}>
-                {isCompleted ? 'Concluída' : 'Marcar como concluída'}
-              </Text>
-            </Pressable>
+            {isPending && (
+              <Pressable
+                style={[
+                  styles.completeButton,
+                  isCompleted && styles.completeButtonActive,
+                  !canToggleComplete && styles.completeButtonDisabled
+                ]}
+                onPress={() => onToggleComplete(review.id)}
+                disabled={!canToggleComplete}>
+                <Text style={[
+                  styles.completeButtonText,
+                  isCompleted && styles.completeButtonTextActive,
+                  !canToggleComplete && styles.completeButtonTextDisabled
+                ]}>
+                  {isCompleted ? 'Concluída' : 'Marcar como concluída'}
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       </View>
@@ -145,29 +162,54 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     padding: 16,
+    gap: 8,
   },
-  completeButton: {
+  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 12,
+    padding: 12,
+  },
+  completeButton: {
     backgroundColor: '#fff',
     borderWidth: 2,
     borderColor: '#6366f1',
     borderRadius: 12,
     padding: 12,
+    alignItems: 'center',
   },
   completeButtonActive: {
     backgroundColor: '#6366f1',
     borderColor: '#6366f1',
   },
+  completeButtonDisabled: {
+    backgroundColor: '#f1f5f9',
+    borderColor: '#cbd5e1',
+    opacity: 0.5,
+  },
   completeButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#6366f1',
-    marginLeft: 8,
   },
   completeButtonTextActive: {
     color: '#fff',
+  },
+  completeButtonTextDisabled: {
+    color: '#94a3b8',
+  },
+  skipButton: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#f43f5e',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  skipButtonActive: {
+    backgroundColor: '#f43f5e',
+    borderColor: '#f43f5e',
   },
   dateRow: {
     padding: 12,
@@ -180,12 +222,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#6366f1',
   },
+  skippedDateRow: {
+    backgroundColor: '#fee2e2',
+    borderWidth: 1,
+    borderColor: '#f43f5e',
+  },
   dateText: {
     fontSize: 16,
     color: '#64748b',
   },
   currentDateText: {
     color: '#6366f1',
+    fontWeight: '600',
+  },
+  skippedDateText: {
+    color: '#f43f5e',
     fontWeight: '600',
   },
 });

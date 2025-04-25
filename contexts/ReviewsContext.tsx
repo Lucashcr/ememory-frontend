@@ -5,7 +5,7 @@ import api from '../services/api';
 const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0'); // Usando UTCDate para evitar problemas com timezone
+  const day = String(date.getDate()).padStart(2, '0'); // Corrigindo timezone removendo UTCDate
   return `${year}-${month}-${day}`;
 };
 
@@ -25,12 +25,20 @@ export type Review = {
   review_dates: ReviewDate[];
 };
 
+export type NewReview = {
+  topic: string;
+  subject_id: string;
+  notes: string;
+  initial_date: string;
+};
+
 type ReviewsContextType = {
   reviews: Review[];
   completedReviews: string[];
   isReviewCompleted: (review: Review) => boolean;
+  isReviewSkipped: (review: Review) => boolean;
   toggleReview: (review: Review) => Promise<void>;
-  addReview: (review: Review) => Promise<void>;
+  addReview: (review: NewReview) => Promise<void>;
   getDailyReviews: (date: Date) => Review[];
   formatDate: (date: Date) => string;
   isLoading: boolean;
@@ -78,6 +86,13 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const isReviewSkipped = (review: Review) => {
+    const today = formatDate(new Date());
+    return review.review_dates.some(date => 
+      date.scheduled_for === today && date.status === 'skipped'
+    );
+  };
+
   const toggleReview = async (review: Review) => {
     const reviewId = review.id;
     const currentDate = formatDate(new Date());
@@ -86,7 +101,16 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
       const currentStatus = review.review_dates.find(
         date => date.scheduled_for === currentDate
       )?.status;
-      const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+
+      // Define o próximo status baseado no status atual
+      let newStatus: 'pending' | 'completed' | 'skipped';
+      if (currentStatus === 'completed') {
+        newStatus = 'pending';
+      } else if (currentStatus === 'skipped') {
+        newStatus = 'pending';
+      } else {
+        newStatus = 'completed';
+      }
       
       await api.patch(`/reviews/${reviewId}/status/`, {
         date: currentDate,
@@ -94,9 +118,9 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
       });
 
       setCompletedReviews(prev =>
-        prev.includes(reviewId)
-          ? prev.filter(id => id !== reviewId)
-          : [...prev, reviewId]
+        newStatus === 'completed'
+          ? [...prev, reviewId]
+          : prev.filter(id => id !== reviewId)
       );
 
       // Update local review data
@@ -118,7 +142,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const addReview = async (review: Review) => {
+  const addReview = async (review: NewReview) => {
     try {
       const response = await api.post('/reviews/', review);
       setReviews(prev => [...prev, response.data]);
@@ -132,7 +156,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     const dateStr = formatDate(date);
     return reviews.filter(review =>
       review.review_dates.some(
-        reviewDate => reviewDate.scheduled_for === dateStr && reviewDate.status === 'pending'
+        reviewDate => reviewDate.scheduled_for === dateStr
       )
     );
   };
@@ -141,6 +165,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     reviews,
     completedReviews,
     isReviewCompleted,
+    isReviewSkipped,
     toggleReview,
     addReview,
     getDailyReviews,

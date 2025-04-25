@@ -13,7 +13,7 @@ export default function DailyReviews() {
   const todayStr = formatDate(today);
   
   const dailyReviews = reviews.filter(review => 
-    review.review_dates.some(rd => rd.scheduled_for === todayStr && rd.status === 'pending')
+    review.review_dates.some(rd => rd.scheduled_for === todayStr)
   );
 
   const getReviewStatus = (review: Review, date: string) => {
@@ -48,33 +48,66 @@ export default function DailyReviews() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        {dailyReviews.map(review => (
-          <Pressable
-            key={review.id}
-            style={[styles.reviewItem]}
-            onPress={() => openReviewDetails(review)}>
-            <Pressable
-              onPress={(e) => {
-                e.stopPropagation();
-                toggleReview(review);
-              }}
-              style={styles.checkboxContainer}>
-              <View style={[styles.checkbox, isReviewCompleted(review) && styles.checkboxChecked]}>
-                {isReviewCompleted(review) && (
-                  <Check size={16} color="#fff" />
-                )}
-              </View>
-            </Pressable>
-            <View style={styles.reviewContent}>
-              <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
-              <View>
-                <Text style={styles.topicText}>{review.topic}</Text>
-                <Text style={styles.subjectText}>{review.subject.name}</Text>
-                <Text style={styles.reviewTypeText}>{reviewTypeText(review)}</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
+        {dailyReviews.map(review => {
+          const reviewDate = review.review_dates.find(
+            rd => rd.scheduled_for === todayStr
+          );
+          const isSkipped = reviewDate?.status === 'skipped';
+          const isPending = reviewDate?.status === 'pending';
+          const completed = isReviewCompleted(review);
+
+          if (!isSkipped) {
+            return (
+              <Pressable
+                key={review.id}
+                style={[
+                  styles.reviewItem,
+                  completed && styles.reviewItemCompleted
+                ]}
+                onPress={() => openReviewDetails(review)}>
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    if (isPending || completed) {
+                      toggleReview(review);
+                    }
+                  }}
+                  style={[
+                    styles.checkboxContainer,
+                    !isPending && !completed && styles.checkboxContainerDisabled
+                  ]}>
+                  <View style={[
+                    styles.checkbox,
+                    completed && styles.checkboxChecked,
+                    !isPending && !completed && styles.checkboxDisabled,
+                  ]}>
+                    {completed && (
+                      <Check size={16} color="#fff" />
+                    )}
+                  </View>
+                </Pressable>
+                <View style={styles.reviewContent}>
+                  <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
+                  <View>
+                    <Text style={[
+                      styles.topicText,
+                      completed && styles.reviewTextCompleted
+                    ]}>{review.topic}</Text>
+                    <Text style={[
+                      styles.subjectText,
+                      completed && styles.reviewTextCompleted
+                    ]}>{review.subject.name}</Text>
+                    <Text style={[
+                      styles.reviewTypeText,
+                      completed && styles.reviewTextCompleted
+                    ]}>{reviewTypeText(review)}</Text>
+                  </View>
+                </View>
+              </Pressable>
+            );
+          }
+          return null;
+        })}
       </ScrollView>
 
       <ReviewDetails
@@ -87,6 +120,7 @@ export default function DailyReviews() {
             toggleReview(review);
           }
         }}
+        currentDate={todayStr}
       />
     </View>
   );
@@ -113,6 +147,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  reviewItemCompleted: {
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   checkboxContainer: {
     padding: 4,
@@ -156,5 +195,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94a3b8',
     marginTop: 2,
+  },
+  checkboxContainerDisabled: {
+    opacity: 0.5,
+  },
+  checkboxDisabled: {
+    backgroundColor: '#f1f5f9',
+    borderColor: '#cbd5e1',
+  },
+  reviewTextCompleted: {
+    color: '#94a3b8',
+    textDecorationLine: 'line-through',
   },
 });

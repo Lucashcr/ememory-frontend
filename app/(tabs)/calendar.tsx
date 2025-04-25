@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, Check } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, Check, Ban } from 'lucide-react-native';
 import NewReviewModal from '@/components/modals/new-revision';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
@@ -96,12 +96,10 @@ export default function Calendar() {
   const days = getDaysInMonth(currentDate);
   const reviewsByDate = reviews.reduce((acc: { [key: string]: Review[] }, review) => {
     review.review_dates.forEach(rd => {
-      if (rd.status === 'pending') {
-        const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
-        if (reviewDate.getMonth() === currentDate.getMonth() &&
-            reviewDate.getFullYear() === currentDate.getFullYear()) {
-          acc[rd.scheduled_for] = [...(acc[rd.scheduled_for] || []), review];
-        }
+      const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
+      if (reviewDate.getMonth() === currentDate.getMonth() &&
+          reviewDate.getFullYear() === currentDate.getFullYear()) {
+        acc[rd.scheduled_for] = [...(acc[rd.scheduled_for] || []), review];
       }
     });
     return acc;
@@ -179,63 +177,74 @@ export default function Calendar() {
               <Text style={styles.dateText}>
                 {new Date(date).toLocaleDateString('pt-BR')}
               </Text>
-              {dateReviews.map((review, index) => (
-                <Pressable
-                  key={`${review.id}-${index}`}
-                  style={[
-                    styles.reviewItem,
-                    isReviewCompleted(review, date) &&
-                      styles.reviewItemCompleted,
-                  ]}
-                  onPress={() => {
-                    setSelectedReview(review);
-                    // Atualiza a data selecionada para a data da revisão
-                    setSelectedDate(new Date(date + 'T00:00:00'));
-                    setReviewDetailsVisible(true);
-                  }}
-                >
-                  <View
+              {dateReviews.map((review, index) => {
+                const isCompleted = isReviewCompleted(review, date);
+                const isSkipped = review.review_dates.find(
+                  rd => rd.scheduled_for === date
+                )?.status === 'skipped';
+
+                return (
+                  <Pressable
+                    key={`${review.id}-${index}`}
                     style={[
-                      styles.reviewColor,
-                      { backgroundColor: review.subject.color },
+                      styles.reviewItem,
+                      isCompleted && styles.reviewItemCompleted,
+                      isSkipped && styles.reviewItemSkipped,
                     ]}
-                  />
-                  <View style={styles.reviewContent}>
-                    <Text
+                    onPress={() => {
+                      setSelectedReview(review);
+                      setSelectedDate(new Date(date + 'T00:00:00'));
+                      setReviewDetailsVisible(true);
+                    }}
+                  >
+                    <View
                       style={[
-                        styles.reviewTopic,
-                        isReviewCompleted(review, date) &&
-                          styles.reviewTextCompleted,
+                        styles.reviewColor,
+                        { backgroundColor: review.subject.color },
                       ]}
-                    >
-                      {review.topic}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.reviewSubject,
-                        isReviewCompleted(review, date) &&
-                          styles.reviewTextCompleted,
-                      ]}
-                    >
-                      {review.subject.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.reviewDate,
-                        isReviewCompleted(review, date) &&
-                          styles.reviewTextCompleted,
-                      ]}
-                    >
-                      Data de revisão ({getReviewStatus(review, date)})
-                    </Text>
-                  </View>
-                  {isReviewCompleted(review, date) && (
-                    <View style={styles.completedCheckmark}>
-                      <Check size={16} color="#22c55e" />
+                    />
+                    <View style={styles.reviewContent}>
+                      <Text
+                        style={[
+                          styles.reviewTopic,
+                          isCompleted && styles.reviewTextCompleted,
+                          isSkipped && styles.reviewTextSkipped,
+                        ]}
+                      >
+                        {review.topic}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.reviewSubject,
+                          isCompleted && styles.reviewTextCompleted,
+                          isSkipped && styles.reviewTextSkipped,
+                        ]}
+                      >
+                        {review.subject.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.reviewDate,
+                          isCompleted && styles.reviewTextCompleted,
+                          isSkipped && styles.reviewTextSkipped,
+                        ]}
+                      >
+                        Data de revisão ({getReviewStatus(review, date)})
+                      </Text>
                     </View>
-                  )}
-                </Pressable>
-              ))}
+                    {isSkipped && (
+                      <View style={styles.skippedIcon}>
+                        <Ban size={16} color="#f43f5e" />
+                      </View>
+                    )}
+                    {isCompleted && (
+                      <View style={styles.completedCheckmark}>
+                        <Check size={16} color="#22c55e" />
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
             </View>
           ))}
         </View>
@@ -411,5 +420,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94a3b8',
     marginTop: 2,
+  },
+  reviewItemSkipped: {
+    opacity: 0.5,
+  },
+  reviewTextSkipped: {
+    textDecorationLine: 'line-through',
+  },
+  skippedIcon: {
+    marginLeft: 8,
   },
 });
