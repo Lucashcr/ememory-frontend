@@ -1,8 +1,16 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Calendar, CheckSquare, BookOpen } from 'lucide-react-native';
+import { Calendar, CheckSquare, BookOpen, LogOut } from 'lucide-react-native';
+import { TouchableOpacity } from 'react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -12,6 +20,14 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: '#e2e8f0',
         },
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={handleLogout}
+            style={{ marginRight: 16, padding: 4 }}
+          >
+            <LogOut size={24} color="#64748b" />
+          </TouchableOpacity>
+        ),
       }}>
       <Tabs.Screen
         name="index"
