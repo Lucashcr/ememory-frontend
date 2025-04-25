@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
@@ -18,11 +18,36 @@ export default function Subjects() {
   const [subjectToDelete, setSubjectToDelete] = useState<{id: string, name: string} | null>(null);
 
   const handleAddSubject = () => {
-    if (newSubject.trim()) {
-      addSubject(newSubject.trim(), selectedColor);
-      setNewSubject('');
-      setIsAdding(false);
+    const trimmedName = newSubject.trim();
+    if (!trimmedName) return;
+
+    // Verificar se já existe uma disciplina com o mesmo nome
+    const duplicateName = subjects.find(
+      subject => subject.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (duplicateName) {
+      Alert.alert(
+        'Erro',
+        'Já existe uma disciplina com este nome. Por favor, escolha um nome diferente.'
+      );
+      return;
     }
+
+    // Verificar se já existe uma disciplina com a mesma cor
+    const duplicateColor = subjects.find(
+      subject => subject.color === selectedColor
+    );
+    if (duplicateColor) {
+      Alert.alert(
+        'Erro',
+        'Esta cor já está sendo usada pela disciplina "' + duplicateColor.name + '". Por favor, escolha uma cor diferente.'
+      );
+      return;
+    }
+
+    addSubject(trimmedName, selectedColor);
+    setNewSubject('');
+    setIsAdding(false);
   };
 
   const handleDeleteSubject = async () => {
@@ -143,22 +168,22 @@ const styles = StyleSheet.create({
   },
   colorPicker: {
     flexDirection: 'row',
-    marginBottom: 12,
+    paddingBottom: 12,
   },
   colorOption: {
     width: 32,
     height: 32,
     borderRadius: 16,
     marginRight: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   colorOptionSelected: {
-    borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
+    borderWidth: 2,
+    borderColor: '#6366f1',
   },
   addButton: {
     backgroundColor: '#6366f1',
