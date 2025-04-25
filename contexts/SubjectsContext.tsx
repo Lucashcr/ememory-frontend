@@ -12,11 +12,7 @@ type SubjectsContextType = {
   removeSubject: (id: string) => void;
 };
 
-const initialSubjects: Subject[] = [
-  { id: '1', name: 'Matemática', color: '#ef4444' },
-  { id: '2', name: 'Física', color: '#3b82f6' },
-  { id: '3', name: 'Química', color: '#22c55e' },
-];
+const initialSubjects: Subject[] = [];
 
 export const SubjectsContext = createContext<SubjectsContextType | undefined>(undefined);
 

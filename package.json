@@ -9,8 +9,11 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo/html-elements": "latest",
     "@expo/vector-icons": "^14.0.2",
     "@lucide/lab": "^0.1.2",
+    "@react-native-async-storage/async-storage": "^2.1.2",
+    "@react-native-picker/picker": "2.9.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "expo": "~52.0.46",
@@ -21,6 +24,7 @@
     "expo-haptics": "^14.0.1",
     "expo-linear-gradient": "^14.0.2",
     "expo-linking": "^7.0.5",
+    "expo-notifications": "~0.29.14",
     "expo-router": "~4.0.20",
     "expo-splash-screen": "^0.29.21",
     "expo-status-bar": "^2.0.1",
@@ -38,16 +42,13 @@
     "react-native-svg": "15.8.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "^0.19.13",
-    "react-native-webview": "13.12.5",
-    "@expo/html-elements": "latest",
-    "@react-native-picker/picker": "2.9.0",
-    "expo-notifications": "~0.29.14"
+    "react-native-webview": "13.12.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~18.3.12",
-    "typescript": "^5.3.3",
     "eslint": "^8.57.0",
-    "eslint-config-expo": "~8.0.1"
+    "eslint-config-expo": "~8.0.1",
+    "typescript": "^5.3.3"
   }
 }
