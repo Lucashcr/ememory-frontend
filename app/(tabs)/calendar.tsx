@@ -413,9 +413,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   reviewItemSkipped: {
-    opacity: 0.5,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   reviewTextSkipped: {
+    color: '#94a3b8',
     textDecorationLine: 'line-through',
   },
   skippedIcon: {

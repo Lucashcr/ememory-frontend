@@ -57,14 +57,13 @@ export default function ReviewDetails({
                 key={index} 
                 style={[
                   styles.dateRow,
-                  date.scheduled_for === currentDate ? styles.currentDateRow : undefined,
-                  date.status === 'skipped' ? styles.skippedDateRow : undefined
+                  date.scheduled_for === currentDate && styles.currentDateRow,
                 ]}
               >
                 <Text style={[
                   styles.dateText,
-                  date.scheduled_for === currentDate ? styles.currentDateText : undefined,
-                  date.status === 'skipped' ? styles.skippedDateText : undefined
+                  (date.status === 'completed' || date.status === 'skipped') && styles.completedDateText,
+                  date.scheduled_for === currentDate && styles.currentDateText,
                 ]}>
                   {formatDateToLocalString(date.scheduled_for)} ({date.status})
                 </Text>
@@ -223,11 +222,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#6366f1',
   },
-  skippedDateRow: {
-    backgroundColor: '#fee2e2',
-    borderWidth: 1,
-    borderColor: '#f43f5e',
-  },
   dateText: {
     fontSize: 16,
     color: '#64748b',
@@ -236,8 +230,7 @@ const styles = StyleSheet.create({
     color: '#6366f1',
     fontWeight: '600',
   },
-  skippedDateText: {
-    color: '#f43f5e',
-    fontWeight: '600',
-  },
+  completedDateText: {
+    textDecorationLine: 'line-through',
+  }
 });
