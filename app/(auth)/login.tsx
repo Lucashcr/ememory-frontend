@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
+import api from '@/services/api';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -10,25 +11,23 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://192.168.0.116:8000/auth/token', {
+      const response = await api.post('/auth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
       });
-
-      const data = await response.json();
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao fazer login');
+      if (response.status !== 200) {
+        throw new Error(response.data.message || 'Erro ao fazer login');
       }
 
-      if (!data.token) {
+      if (!response.data.token) {
         throw new Error('Resposta inválida do servidor');
       }
 
-      await signIn(data.token);
+      await signIn(response.data.token);
       router.replace('/(tabs)');
     } catch (error) {
       Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
