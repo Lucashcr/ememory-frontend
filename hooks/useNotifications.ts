@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { DailyTriggerInput } from 'expo-notifications';
@@ -17,14 +17,12 @@ export function useNotifications() {
   const notificationListener = useRef<Notifications.EventSubscription>();
   const responseListener = useRef<Notifications.EventSubscription>();
 
-  async function scheduleReviewNotification() {
+  const scheduleReviewNotification = useCallback(async () => {
     const permission = await requestNotificationPermissions();
     if (!permission) return;
 
-    // Cancela notificações existentes
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // Agenda nova notificação para às 9h da manhã
     const trigger: DailyTriggerInput = {
       hour: 8,
       minute: 0,
@@ -40,18 +38,18 @@ export function useNotifications() {
       trigger,
       identifier: 'daily-review-notification',
     });
-  }
+  }, []);
 
-  async function checkAndScheduleNotification() {
+  const checkAndScheduleNotification = useCallback(async () => {
     const today = new Date();
-    const todayReviews = getDailyReviews(today);
+    const todayReviews = getDailyReviews(today.toDateString());
 
     if (todayReviews.length > 0) {
       await scheduleReviewNotification();
     } else {
       await Notifications.cancelScheduledNotificationAsync('daily-review-notification');
     }
-  }
+  }, [getDailyReviews, scheduleReviewNotification]);
 
   async function requestNotificationPermissions() {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -89,8 +87,6 @@ export function useNotifications() {
     responseListener.current = Notifications.addNotificationResponseReceivedListener(
       response => {
         console.log('Resposta da notificação:', response);
-        // Aqui você pode adicionar lógica para navegar para a tela de revisões
-        // quando o usuário tocar na notificação
       }
     );
 
@@ -102,5 +98,5 @@ export function useNotifications() {
         Notifications.removeNotificationSubscription(responseListener.current);
       }
     };
-  }, []);
+  }, [checkAndScheduleNotification]);
 }
