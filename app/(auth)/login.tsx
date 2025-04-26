@@ -12,19 +12,16 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const response = await api.post('/auth/token', { username, password });
-      
-      if (response.status !== 200) {
-        throw new Error(response.data.message || 'Erro ao fazer login');
-      }
-
-      if (!response.data.token) {
-        throw new Error('Resposta inválida do servidor');
-      }
-
       await signIn(response.data.token);
       router.replace('/(tabs)');
-    } catch (error) {
-      Alert.alert('Erro', error instanceof Error ? error.message : 'Erro ao fazer login');
+    } catch (error: any) {
+      if (error.response) {
+        Alert.alert('Erro', 'Credenciais inválidas! Verifique seu usuário e senha e tente novamente.');
+      } else if (error.request) {
+        Alert.alert('Erro', 'Erro de conexão com o servidor! Tente novamente mais tarde.');
+      } else {
+        Alert.alert('Erro', 'Ocorreu um erro inesperado');
+      }
     }
   };
 
