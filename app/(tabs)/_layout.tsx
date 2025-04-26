@@ -3,11 +3,17 @@ import { Tabs } from 'expo-router';
 import { Calendar, CheckSquare, BookOpen, LogOut } from 'lucide-react-native';
 import { TouchableOpacity } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubjects } from '@/contexts/SubjectsContext';
+import { useReviews } from '@/contexts/ReviewsContext';
 
 export default function TabLayout() {
   const { signOut } = useAuth();
+  const { setSubjects } = useSubjects();
+  const { setReviews } = useReviews();
 
   const handleLogout = async () => {
+    setSubjects([]);
+    setReviews([]);
     await signOut();
   };
 

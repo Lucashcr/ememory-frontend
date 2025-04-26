@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubjects } from '@/contexts/SubjectsContext';
+import { useReviews } from '@/contexts/ReviewsContext';
 import { router } from 'expo-router';
 import api from '@/services/api';
 
@@ -8,11 +10,22 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { signIn } = useAuth();
+  const { setSubjects } = useSubjects();
+  const { setReviews } = useReviews();
 
   const handleLogin = async () => {
     try {
       const response = await api.post('/auth/token', { username, password });
       await signIn(response.data.token);
+      
+      const [subjectsResponse, reviewsResponse] = await Promise.all([
+        api.get('/reviews/subjects/'),
+        api.get('/reviews/')
+      ]);
+
+      setSubjects(subjectsResponse.data);
+      setReviews(reviewsResponse.data);
+
       router.replace('/(tabs)');
     } catch (error: any) {
       if (error.response) {

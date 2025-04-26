@@ -32,6 +32,7 @@ type ReviewsContextType = {
   isReviewSkipped: (review: Review) => boolean;
   toggleReview: (review: Review) => Promise<void>;
   addReview: (review: NewReview) => Promise<void>;
+  setReviews: (reviews: Review[]) => void;
   getDailyReviews: (date: string) => Review[];
   formatDate: (date: string | Date) => string;
   isLoading: boolean;
@@ -157,6 +158,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     isReviewSkipped,
     toggleReview,
     addReview,
+    setReviews,
     getDailyReviews,
     formatDate: formatDateString,
     isLoading,

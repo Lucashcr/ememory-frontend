@@ -11,6 +11,7 @@ type SubjectsContextType = {
   subjects: Subject[];
   addSubject: (name: string, color: string) => Promise<void>;
   removeSubject: (id: string) => Promise<void>;
+  setSubjects: (subjects: Subject[]) => void;
   isLoading: boolean;
   error: string | null;
 };
@@ -79,6 +80,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
     subjects,
     addSubject,
     removeSubject,
+    setSubjects,
     isLoading,
     error,
   };
