@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, Modal, StyleSheet, Pressable, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+} from 'react-native';
 import { X } from 'lucide-react-native';
 import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
 import type { Review } from '@/contexts/ReviewsContext';
@@ -21,7 +28,9 @@ export default function ReviewDetails({
 }: ReviewDetailsProps) {
   if (!review || !currentDate) return null;
 
-  const reviewDate = review.review_dates.find(rd => rd.scheduled_for === currentDate);
+  const reviewDate = review.review_dates.find(
+    (rd) => rd.scheduled_for === currentDate
+  );
   const isCompleted = reviewDate?.status === 'completed';
   const isPending = reviewDate?.status === 'pending';
 
@@ -38,7 +47,12 @@ export default function ReviewDetails({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
+            <View
+              style={[
+                styles.subjectIndicator,
+                { backgroundColor: review.subject.color },
+              ]}
+            />
             <View style={styles.modalHeaderText}>
               <Text style={styles.modalTitle}>{review.topic}</Text>
               <Text style={styles.modalSubject}>{review.subject.name}</Text>
@@ -51,20 +65,27 @@ export default function ReviewDetails({
             <Text style={styles.notesLabel}>Observações:</Text>
             <Text style={styles.notesText}>{review.notes}</Text>
 
-            <Text style={[styles.notesLabel, { marginTop: 16 }]}>Datas de revisão:</Text>
+            <Text style={[styles.notesLabel, { marginTop: 16 }]}>
+              Datas de revisão:
+            </Text>
             {review.review_dates.map((date, index) => (
-              <View 
-                key={index} 
+              <View
+                key={index}
                 style={[
                   styles.dateRow,
                   date.scheduled_for === currentDate && styles.currentDateRow,
                 ]}
               >
-                <Text style={[
-                  styles.dateText,
-                  (date.status === 'completed' || date.status === 'skipped') && styles.completedDateText,
-                  date.scheduled_for === currentDate && styles.currentDateText,
-                ]}>
+                <Text
+                  style={[
+                    styles.dateText,
+                    (date.status === 'completed' ||
+                      date.status === 'skipped') &&
+                      styles.completedDateText,
+                    date.scheduled_for === currentDate &&
+                      styles.currentDateText,
+                  ]}
+                >
                   {formatDateToLocalString(date.scheduled_for)} ({date.status})
                 </Text>
               </View>
@@ -76,15 +97,21 @@ export default function ReviewDetails({
                 style={[
                   styles.completeButton,
                   isCompleted && styles.completeButtonActive,
-                  !canToggleComplete && styles.completeButtonDisabled
+                  !canToggleComplete && styles.completeButtonDisabled,
                 ]}
-                onPress={() => onToggleComplete(review.id)}
-                disabled={!canToggleComplete}>
-                <Text style={[
-                  styles.completeButtonText,
-                  isCompleted && styles.completeButtonTextActive,
-                  !canToggleComplete && styles.completeButtonTextDisabled
-                ]}>
+                onPress={() => {
+                  onToggleComplete(review.id);
+                  onClose();
+                }}
+                disabled={!canToggleComplete}
+              >
+                <Text
+                  style={[
+                    styles.completeButtonText,
+                    isCompleted && styles.completeButtonTextActive,
+                    !canToggleComplete && styles.completeButtonTextDisabled,
+                  ]}
+                >
                   {isCompleted ? 'Concluída' : 'Marcar como concluída'}
                 </Text>
               </Pressable>
@@ -232,5 +259,5 @@ const styles = StyleSheet.create({
   },
   completedDateText: {
     textDecorationLine: 'line-through',
-  }
+  },
 });

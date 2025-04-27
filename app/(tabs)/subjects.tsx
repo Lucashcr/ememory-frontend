@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 
 import { Plus, X } from 'lucide-react-native';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
+import { useReviews } from '@/contexts/ReviewsContext';
 
 const COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16',
@@ -16,6 +17,7 @@ export default function Subjects() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [isAdding, setIsAdding] = useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<{id: string, name: string} | null>(null);
+  const { fetchReviews } = useReviews();
 
   const handleAddSubject = () => {
     const trimmedName = newSubject.trim();
@@ -53,6 +55,7 @@ export default function Subjects() {
   const handleDeleteSubject = async () => {
     if (subjectToDelete) {
       await removeSubject(subjectToDelete.id);
+      await fetchReviews();
       setSubjectToDelete(null);
     }
   };
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
   },
   colorOptionSelected: {
     borderWidth: 2,
-    borderColor: '#6366f1',
+    borderColor: '#fff',
   },
   addButton: {
     backgroundColor: '#6366f1',

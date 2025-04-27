@@ -36,6 +36,7 @@ type ReviewsContextType = {
   getDailyReviews: (date: string) => Review[];
   formatDate: (date: string | Date) => string;
   isLoading: boolean;
+  fetchReviews: () => Promise<void>;
 };
 
 export const ReviewsContext = createContext<ReviewsContextType | undefined>(undefined);
@@ -162,6 +163,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     getDailyReviews,
     formatDate: formatDateString,
     isLoading,
+    fetchReviews,
   };
 
   return (
