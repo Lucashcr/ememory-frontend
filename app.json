@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.ememory"
     },
     "web": {
       "bundler": "metro",
@@ -23,12 +24,26 @@
         {
           "icon": "./assets/images/favicon.png",
           "color": "#6366f1",
-          "sounds": ["./assets/sounds/notification.wav"]
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "android": {
+      "package": "com.anonymous.ememory"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1dd3989f-63e4-4fed-9ccf-9d2dc4686854"
+      }
+    },
+    "owner": "lucashcr"
   }
 }
