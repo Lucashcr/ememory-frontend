@@ -5,6 +5,7 @@ import NewReviewModal from '@/components/modals/new-revision';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, formatDateToLocalString } from '@/services/dateUtils';
+import CustomRefreshControl from '@/components/layout/refresh-control';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
@@ -108,7 +109,7 @@ export default function Calendar() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.reviewList}>
+      <ScrollView style={styles.reviewList} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
         <View style={styles.header}>
           <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
             <ChevronLeft size={24} color="#64748b" />

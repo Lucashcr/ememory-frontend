@@ -4,6 +4,7 @@ import { Plus, X } from 'lucide-react-native';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
 import { useReviews } from '@/contexts/ReviewsContext';
+import CustomRefreshControl from '@/components/layout/refresh-control';
 
 const COLORS = [
   '#ef4444', '#f97316', '#f59e0b', '#84cc16',
@@ -62,7 +63,7 @@ export default function Subjects() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
         {subjects.map(subject => (
           <View key={subject.id} style={styles.subjectItem}>
             <View style={[styles.colorIndicator, { backgroundColor: subject.color }]} />

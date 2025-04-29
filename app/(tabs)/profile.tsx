@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import {
   AlertCircle,
@@ -19,7 +20,11 @@ import { useReviews } from '@/contexts/ReviewsContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import TimePickerModal from '@/components/modals/time-picker';
 import api from '@/services/api';
-import { getNotificationTime, setNotificationTime } from '@/services/notificationTime';
+import {
+  getNotificationTime,
+  setNotificationTime,
+} from '@/services/notificationTime';
+import CustomRefreshControl from '@/components/layout/refresh-control';
 
 export default function Profile() {
   const { signOut, user, fetchUserData } = useAuth();
@@ -27,7 +32,10 @@ export default function Profile() {
   const { setReviews } = useReviews();
   const { scheduleReviewNotification } = useNotifications();
   const [timePickerVisible, setTimePickerVisible] = useState(false);
-  const [notificationTime, setNotificationTimeState] = useState({ hour: 8, minute: 0 });
+  const [notificationTime, setNotificationTimeState] = useState({
+    hour: 8,
+    minute: 0,
+  });
 
   const loadNotificationTime = useCallback(async () => {
     const time = await getNotificationTime();
@@ -52,7 +60,9 @@ export default function Profile() {
   };
 
   const formatTime = (hour: number, minute: number) => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    return `${hour.toString().padStart(2, '0')}:${minute
+      .toString()
+      .padStart(2, '0')}`;
   };
 
   const handleSaveTime = async (hour: number, minute: number) => {
@@ -60,9 +70,15 @@ export default function Profile() {
       await setNotificationTime(hour, minute);
       setNotificationTimeState({ hour, minute });
       await scheduleReviewNotification();
-      Alert.alert('Sucesso', 'Horário das notificações atualizado com sucesso!');
+      Alert.alert(
+        'Sucesso',
+        'Horário das notificações atualizado com sucesso!'
+      );
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o horário das notificações.');
+      Alert.alert(
+        'Erro',
+        'Não foi possível salvar o horário das notificações.'
+      );
     }
   };
 
@@ -75,7 +91,11 @@ export default function Profile() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      refreshControl={CustomRefreshControl()}
+    >
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Dados do Usuário</Text>
 
@@ -113,7 +133,8 @@ export default function Profile() {
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Notificações</Text>
               <Text style={styles.infoText}>
-                Notificações diárias às {formatTime(notificationTime.hour, notificationTime.minute)}
+                Notificações diárias às{' '}
+                {formatTime(notificationTime.hour, notificationTime.minute)}
               </Text>
             </View>
           </View>
@@ -134,7 +155,7 @@ export default function Profile() {
         onSave={handleSaveTime}
         currentTime={notificationTime}
       />
-    </View>
+    </ScrollView>
   );
 }
 

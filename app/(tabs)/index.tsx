@@ -4,6 +4,7 @@ import { Check } from 'lucide-react-native';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { getCurrentDate } from '@/services/dateUtils';
+import CustomRefreshControl from '@/components/layout/refresh-control';
 
 export default function DailyReviews() {
   const { reviews, isReviewCompleted, toggleReview } = useReviews();
@@ -47,7 +48,7 @@ export default function DailyReviews() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
         {dailyReviews.map(review => {
           const reviewDate = review.review_dates.find(
             rd => rd.scheduled_for === today
