@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import api from '@/services/api';
+import {validateEmail, validatePassword} from '@/services/validators';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,26 @@ export default function Register() {
   const { setReviews } = useReviews();
 
   const handleRegister = async () => {
+    if (!email || !firstName || !password) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios!');
+      return;
+    }
+
+    const emailValidation = validateEmail(email);
+    if (emailValidation.error) {
+      Alert.alert('Erro', emailValidation.error);
+      return;
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (passwordValidation.error) {
+      Alert.alert(
+        'Erro',
+        passwordValidation.error
+      );
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Erro', 'As senhas não coincidem!');
       return;
