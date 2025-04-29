@@ -69,11 +69,11 @@ export default function Calendar() {
       case 2:
         return '7 dias';
       case 3:
-        return '15 dias';
+        return '14 dias';
       case 4:
-        return '30 dias';
+        return '28 dias';
       case 5:
-        return '60 dias';
+        return '56 dias';
       default:
         return '';
     }
