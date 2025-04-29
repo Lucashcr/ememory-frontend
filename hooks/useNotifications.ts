@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { DailyTriggerInput } from 'expo-notifications';
 import { useReviews } from '@/contexts/ReviewsContext';
+import { getNotificationTime } from '@/services/notificationTime';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -23,9 +24,9 @@ export function useNotifications() {
 
     await Notifications.cancelAllScheduledNotificationsAsync();
 
+    const notificationTime = await getNotificationTime();
     const trigger: DailyTriggerInput = {
-      hour: 8,
-      minute: 0,
+      ...notificationTime,
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
     };
 
@@ -99,4 +100,8 @@ export function useNotifications() {
       }
     };
   }, [checkAndScheduleNotification]);
+
+  return {
+    scheduleReviewNotification,
+  };
 }

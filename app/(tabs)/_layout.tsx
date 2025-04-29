@@ -1,22 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Calendar, CheckSquare, BookOpen, LogOut } from 'lucide-react-native';
-import { TouchableOpacity } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSubjects } from '@/contexts/SubjectsContext';
-import { useReviews } from '@/contexts/ReviewsContext';
+import { Calendar, CheckSquare, BookOpen, User } from 'lucide-react-native';
 
 export default function TabLayout() {
-  const { signOut } = useAuth();
-  const { setSubjects } = useSubjects();
-  const { setReviews } = useReviews();
-
-  const handleLogout = async () => {
-    setSubjects([]);
-    setReviews([]);
-    await signOut();
-  };
-
   return (
     <Tabs
       screenOptions={{
@@ -26,14 +12,6 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: '#e2e8f0',
         },
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={{ marginRight: 16, padding: 4 }}
-          >
-            <LogOut size={24} color="#64748b" />
-          </TouchableOpacity>
-        ),
       }}>
       <Tabs.Screen
         name="index"
@@ -59,6 +37,15 @@ export default function TabLayout() {
           title: 'Calendário',
           tabBarIcon: ({ color, size }) => (
             <Calendar size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) => (
+            <User size={size} color={color} />
           ),
         }}
       />

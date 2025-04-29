@@ -31,8 +31,7 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           // Unauthorized - Clear storage and redirect to login
-          await AsyncStorage.multiRemove(['@EMem:token', '@EMem:subjects']);
-          // You might want to add navigation logic here
+          await AsyncStorage.multiRemove(['@EMem:token', '@EMem:subjects', '@EMem:reviews']);
           break;
         case 403:
           // Forbidden
