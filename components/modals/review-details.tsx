@@ -35,7 +35,7 @@ export default function ReviewDetails({
   const isPending = reviewDate?.status === 'pending';
 
   const today = getCurrentDate();
-  const canToggleComplete = isPending && currentDate === today;
+  const canToggleComplete = currentDate === today;
 
   return (
     <Modal
@@ -92,7 +92,7 @@ export default function ReviewDetails({
             ))}
           </ScrollView>
           <View style={styles.modalFooter}>
-            {isPending && (
+            {(isPending || isCompleted) && (
               <Pressable
                 style={[
                   styles.completeButton,
@@ -112,7 +112,7 @@ export default function ReviewDetails({
                     !canToggleComplete && styles.completeButtonTextDisabled,
                   ]}
                 >
-                  {isCompleted ? 'Concluída' : 'Marcar como concluída'}
+                  {isCompleted ? 'Desmarcar como concluída' : 'Marcar como concluída'}
                 </Text>
               </Pressable>
             )}
