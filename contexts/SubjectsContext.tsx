@@ -14,6 +14,7 @@ type SubjectsContextType = {
   setSubjects: (subjects: Subject[]) => void;
   isLoading: boolean;
   error: string | null;
+  fetchSubjects: () => Promise<void>;
 };
 
 const initialSubjects: Subject[] = [];
@@ -25,21 +26,21 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await api.get('/reviews/subjects/');
-        setSubjects(response.data);
-      } catch (err) {
-        setError('Failed to fetch subjects');
-        console.error('Error fetching subjects:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchSubjects = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await api.get('/reviews/subjects/');
+      setSubjects(response.data);
+    } catch (err) {
+      setError('Failed to fetch subjects');
+      console.error('Error fetching subjects:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSubjects();
   }, []);
 
@@ -83,6 +84,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
     setSubjects,
     isLoading,
     error,
+    fetchSubjects,
   };
 
   return (
