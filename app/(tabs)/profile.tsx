@@ -37,6 +37,7 @@ export default function Profile() {
   useEffect(() => {
     fetchUserData();
     loadNotificationTime();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = async () => {
