@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Check, Plus } from 'lucide-react-native';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
-import { getCurrentDate } from '@/services/dateUtils';
+import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
+import NewReviewModal from '@/components/modals/new-revision';
 
 export default function DailyReviews() {
   const { reviews, isReviewCompleted, toggleReview } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [newReviewModalVisible, setNewReviewModalVisible] = useState(false);
+  const [reviewDetailsModalVisible, setReviewDetailsModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
   
   const today = getCurrentDate();
   
@@ -43,7 +46,7 @@ export default function DailyReviews() {
 
   const openReviewDetails = (review: Review) => {
     setSelectedReview(review);
-    setModalVisible(true);
+    setReviewDetailsModalVisible(true);
   };
 
   return (
@@ -113,8 +116,8 @@ export default function DailyReviews() {
 
       <ReviewDetails
         review={selectedReview}
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        visible={reviewDetailsModalVisible}
+        onClose={() => setReviewDetailsModalVisible(false)}
         onToggleComplete={(id) => {
           const review = dailyReviews.find(r => r.id === id);
           if (review) {
@@ -122,6 +125,22 @@ export default function DailyReviews() {
           }
         }}
         currentDate={today}
+      />
+
+      <Pressable
+        style={styles.fab}
+        onPress={() => {
+          setSelectedDate(formatDateString(new Date()));
+          setNewReviewModalVisible(true);
+        }}
+      >
+        <Plus size={24} color="#fff" />
+      </Pressable>
+      
+      <NewReviewModal
+        visible={newReviewModalVisible}
+        onClose={() => setNewReviewModalVisible(false)}
+        selectedDate={selectedDate}
       />
     </View>
   );
@@ -207,5 +226,21 @@ const styles = StyleSheet.create({
   reviewTextCompleted: {
     color: '#94a3b8',
     textDecorationLine: 'line-through',
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#6366f1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
