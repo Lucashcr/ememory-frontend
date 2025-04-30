@@ -30,7 +30,7 @@ export default function Profile() {
   const { signOut, user, fetchUserData } = useAuth();
   const { setSubjects } = useSubjects();
   const { setReviews } = useReviews();
-  const { scheduleReviewNotification } = useNotifications();
+  const { requestNotificationPermissions, scheduleReviewNotification } = useNotifications();
   const [timePickerVisible, setTimePickerVisible] = useState(false);
   const [notificationTime, setNotificationTimeState] = useState({
     hour: 8,
@@ -67,9 +67,19 @@ export default function Profile() {
 
   const handleSaveTime = async (hour: number, minute: number) => {
     try {
+      const hasPermission = await requestNotificationPermissions();
+      if (!hasPermission) {
+        Alert.alert(
+          'Erro',
+          'O aplicativo não possui permissão para enviar notificações ao dispositivo. Habilite as notificações nas configurações do dispositivo para poder configurar o horário das notificações.',
+        );
+        return;
+      }
+
       await setNotificationTime(hour, minute);
       setNotificationTimeState({ hour, minute });
       await scheduleReviewNotification();
+
       Alert.alert(
         'Sucesso',
         'Horário das notificações atualizado com sucesso!'
