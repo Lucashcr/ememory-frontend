@@ -8,7 +8,7 @@ import CustomRefreshControl from '@/components/layout/refresh-control';
 import NewReviewModal from '@/components/modals/new-revision';
 
 export default function DailyReviews() {
-  const { reviews, isReviewCompleted, toggleReview } = useReviews();
+  const { reviews, isReviewCompleted, toggleReview, deleteReview } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [newReviewModalVisible, setNewReviewModalVisible] = useState(false);
   const [reviewDetailsModalVisible, setReviewDetailsModalVisible] = useState(false);
@@ -118,6 +118,7 @@ export default function DailyReviews() {
         review={selectedReview}
         visible={reviewDetailsModalVisible}
         onClose={() => setReviewDetailsModalVisible(false)}
+        onDelete={deleteReview}
         onToggleComplete={(id) => {
           const review = dailyReviews.find(r => r.id === id);
           if (review) {

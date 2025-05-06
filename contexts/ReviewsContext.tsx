@@ -32,6 +32,7 @@ type ReviewsContextType = {
   isReviewSkipped: (review: Review) => boolean;
   toggleReview: (review: Review) => Promise<void>;
   addReview: (review: NewReview) => Promise<void>;
+  deleteReview: (id: string) => Promise<void>;
   setReviews: (reviews: Review[]) => void;
   getDailyReviews: (date: string) => Review[];
   formatDate: (date: string | Date) => string;
@@ -144,6 +145,17 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteReview = async (id: string) => {
+    try {
+      await api.delete(`/reviews/${id}/`);
+      setReviews(prev => prev.filter(review => review.id !== id));
+      setCompletedReviews(prev => prev.filter(reviewId => reviewId !== id));
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      throw error;
+    }
+  };
+
   const getDailyReviews = (date: string) => {
     return reviews.filter(review =>
       review.review_dates.some(
@@ -159,6 +171,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     isReviewSkipped,
     toggleReview,
     addReview,
+    deleteReview,
     setReviews,
     getDailyReviews,
     formatDate: formatDateString,

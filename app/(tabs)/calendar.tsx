@@ -14,7 +14,7 @@ const MONTHS = [
 ];
 
 export default function Calendar() {
-  const { reviews, toggleReview } = useReviews();
+  const { reviews, toggleReview, deleteReview } = useReviews();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
   const [modalVisible, setModalVisible] = useState(false);
@@ -262,6 +262,7 @@ export default function Calendar() {
         review={selectedReview}
         visible={reviewDetailsVisible}
         onClose={() => setReviewDetailsVisible(false)}
+        onDelete={deleteReview}
         currentDate={selectedDate}
         onToggleComplete={(id: string) => {
           const review = reviews.find((r) => r.id === id);
