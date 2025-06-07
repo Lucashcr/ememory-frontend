@@ -22,7 +22,7 @@ export default function Calendar() {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
   const [filterReviewsModalVisible, setFilterReviewsModalVisible] = useState(false);
-  const [reviewsFilter, setReviewsFilter] = useState({subject: ""});
+  const [reviewsFilter, setReviewsFilter] = useState({subject: "all"});
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -92,7 +92,7 @@ export default function Calendar() {
 
   const filteredReviews = reviews.filter(
     (review) => {
-      return reviewsFilter.subject === "" || review.subject.id === reviewsFilter.subject
+      return reviewsFilter.subject === "all" || review.subject.id === reviewsFilter.subject
     }
   )
 

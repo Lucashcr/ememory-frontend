@@ -56,7 +56,7 @@ export default function FilterReviewsModal({
                   onValueChange={(itemValue) => setSubject(itemValue)}
                   style={styles.select}
                 >
-                  <Picker.Item label="Todas as disciplinas" value="" />
+                  <Picker.Item label="Todas as disciplinas" value="all" />
                   {subjects.map((s) => (
                     <Picker.Item key={s.id} label={s.name} value={s.id} />
                   ))}
@@ -75,6 +75,7 @@ export default function FilterReviewsModal({
             <Pressable
               style={[styles.button, styles.submitButton]}
               onPress={() => {
+                console.log(subject)
                 onConfirmReviewsFilter({ ...reviewsFilter, subject });
                 onClose();
               }}
