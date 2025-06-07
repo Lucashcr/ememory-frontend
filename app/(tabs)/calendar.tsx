@@ -92,8 +92,6 @@ export default function Calendar() {
 
   const filteredReviews = reviews.filter(
     (review) => {
-      console.log(reviewsFilter);
-      console.log(review.subject)
       return reviewsFilter.subject === "" || review.subject.id === reviewsFilter.subject
     }
   )
