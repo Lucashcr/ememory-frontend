@@ -5,7 +5,7 @@ import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
-import NewReviewModal from '@/components/modals/new-revision';
+import NewReviewModal from '@/components/modals/new-review';
 
 export default function DailyReviews() {
   const { reviews, isReviewCompleted, toggleReview, deleteReview } = useReviews();

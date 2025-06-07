@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { formatDateString, getCurrentDate } from '../services/dateUtils';
+import { Subject } from './SubjectsContext';
 
 export type ReviewDate = {
   scheduled_for: string;
@@ -10,10 +11,7 @@ export type ReviewDate = {
 export type Review = {
   id: string;
   topic: string;
-  subject: {
-    name: string;
-    color: string;
-  };
+  subject: Subject;
   notes: string;
   review_dates: ReviewDate[];
 };

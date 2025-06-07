@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, Check, Ban } from 'lucide-react-native';
-import NewReviewModal from '@/components/modals/new-revision';
+import { ChevronLeft, ChevronRight, Plus, Check, Ban, Filter } from 'lucide-react-native';
+import NewReviewModal from '@/components/modals/new-review';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, formatDateToLocalString } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
+import FilterReviewsModal from '@/components/modals/filter-reviews';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
@@ -17,9 +18,11 @@ export default function Calendar() {
   const { reviews, toggleReview, deleteReview } = useReviews();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
-  const [modalVisible, setModalVisible] = useState(false);
+  const [newReviewModalVisible, setNewReivewModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
+  const [filterReviewsModalVisible, setFilterReviewsModalVisible] = useState(false);
+  const [reviewsFilter, setReviewsFilter] = useState({subject: ""});
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -55,7 +58,7 @@ export default function Calendar() {
 
   const handleDayPress = (dateStr: string) => {
     setSelectedDate(dateStr);
-    setModalVisible(true);
+    setNewReivewModalVisible(true);
   };
 
   const getReviewStatus = (review: Review, date: string) => {
@@ -87,8 +90,16 @@ export default function Calendar() {
     return reviewDate?.status === 'completed';
   };
 
+  const filteredReviews = reviews.filter(
+    (review) => {
+      console.log(reviewsFilter);
+      console.log(review.subject)
+      return reviewsFilter.subject === "" || review.subject.id === reviewsFilter.subject
+    }
+  )
+
   const days = getDaysInMonth(currentDate);
-  const reviewsByDate = reviews.reduce((acc: { [key: string]: Review[] }, review) => {
+  const reviewsByDate = filteredReviews.reduce((acc: { [key: string]: Review[] }, review) => {
     review.review_dates.forEach(rd => {
       const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
       if (reviewDate.getMonth() === currentDate.getMonth() &&
@@ -109,7 +120,7 @@ export default function Calendar() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.reviewList} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
+      <ScrollView showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
         <View style={styles.header}>
           <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
             <ChevronLeft size={24} color="#64748b" />
@@ -246,16 +257,32 @@ export default function Calendar() {
         style={styles.fab}
         onPress={() => {
           setSelectedDate(formatDateString(new Date()));
-          setModalVisible(true);
+          setNewReivewModalVisible(true);
         }}
       >
         <Plus size={24} color="#fff" />
       </Pressable>
+      
+      <Pressable
+        style={styles.filter}
+        onPress={() => {
+          setFilterReviewsModalVisible(true);
+        }}
+      >
+        <Filter size={24} color="#fff" />
+      </Pressable>
 
       <NewReviewModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        visible={newReviewModalVisible}
+        onClose={() => setNewReivewModalVisible(false)}
         selectedDate={selectedDate}
+      />
+
+      <FilterReviewsModal
+        visible={filterReviewsModalVisible}
+        onClose={() => setFilterReviewsModalVisible(false)}
+        reviewsFilter={reviewsFilter}
+        onConfirmReviewsFilter={setReviewsFilter}
       />
 
       <ReviewDetails
@@ -338,9 +365,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     margin: 1,
   },
-  reviewList: {
-    marginTop: 16,
-  },
   dateReviews: {
     marginBottom: 16,
   },
@@ -381,6 +405,22 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
+    bottom: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#6366f1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  filter: {
+    position: 'absolute',
+    left: 16,
     bottom: 16,
     width: 56,
     height: 56,
