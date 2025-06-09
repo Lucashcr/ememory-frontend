@@ -1,47 +1,49 @@
-import { useSubjects } from '@/contexts/SubjectsContext';
-import { Picker } from '@react-native-picker/picker';
+import React, { useState } from 'react';
+import { Review, useReviews } from '@/contexts/ReviewsContext';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { X } from 'lucide-react-native';
-import React, { Dispatch, SetStateAction, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import DatePickerWrapper from '@/components/date-picker';
+import api from '@/services/api';
 
-type ReviewsFilter = {
-  subject: string;
-};
-
-interface FilterReviewsProps {
+interface RescheduleReviewModalProps {
+  review: Review | undefined;
   visible: boolean;
   onClose: () => void;
-  reviewsFilter: ReviewsFilter;
-  onConfirmReviewsFilter: Dispatch<SetStateAction<ReviewsFilter>>;
 }
 
-export default function FilterReviewsModal({
+export default function RescheduleReviewModal({
+  review,
   visible,
   onClose,
-  reviewsFilter,
-  onConfirmReviewsFilter,
-}: FilterReviewsProps) {
-  const { subjects } = useSubjects();
-  const [subject, setSubject] = useState<string>(reviewsFilter.subject || '');
+}: RescheduleReviewModalProps) {
+  const [newInitialDate, setNewInitialDate] = useState(new Date());
+  const {fetchReviews} = useReviews();
+  
+  if (!review) {
+    return;
+  }
 
   return (
     <Modal
-      animationType="fade"
-      transparent={true}
       visible={visible}
+      transparent
+      animationType="fade"
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Filtrar revisões</Text>
+            <View
+              style={[
+                styles.subjectIndicator,
+                { backgroundColor: review.subject.color },
+              ]}
+            />
+            <View style={styles.modalHeaderText}>
+              <Text style={styles.modalTitle}>{review.topic}</Text>
+              <Text style={styles.modalSubject}>{review.subject.name}</Text>
+            </View>
+
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color="#64748b" />
             </Pressable>
@@ -49,19 +51,15 @@ export default function FilterReviewsModal({
 
           <ScrollView style={styles.modalBody}>
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Disciplina</Text>
-              <View style={styles.selectContainer}>
-                <Picker
-                  selectedValue={subject}
-                  onValueChange={(itemValue) => setSubject(itemValue)}
-                  style={styles.select}
-                >
-                  <Picker.Item label="Todas as disciplinas" value="all" />
-                  {subjects.map((s) => (
-                    <Picker.Item key={s.id} label={s.name} value={s.id} />
-                  ))}
-                </Picker>
-              </View>
+              <Text style={styles.label}>Reagendar para:</Text>
+            </View>
+            <View style={styles.formGroup}>
+              <DatePickerWrapper date={newInitialDate} setDate={setNewInitialDate} />
+            </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.message}>
+                Tem certeza que deseja reagendar? Todos os agendamentos para esta revisão serão atualizados, começando a partir da nova data selecionada.
+              </Text>
             </View>
           </ScrollView>
 
@@ -74,12 +72,15 @@ export default function FilterReviewsModal({
             </Pressable>
             <Pressable
               style={[styles.button, styles.submitButton]}
-              onPress={() => {
-                onConfirmReviewsFilter({ ...reviewsFilter, subject });
+              onPress={async () => {
+                await api.patch(`/reviews/${review.id}/`, {
+                  "initial_date": newInitialDate.toISOString().split('T')[0],
+                })
+                await fetchReviews();
                 onClose();
               }}
             >
-              <Text style={styles.submitButtonText}>Filtrar Revisões</Text>
+              <Text style={styles.submitButtonText}>Reagendar Revisão</Text>
             </Pressable>
           </View>
         </View>
@@ -89,6 +90,12 @@ export default function FilterReviewsModal({
 }
 
 const styles = StyleSheet.create({
+  subjectIndicator: {
+    width: 4,
+    height: 40,
+    borderRadius: 2,
+    marginRight: 12,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -101,7 +108,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     width: '100%',
     maxWidth: 500,
-    maxHeight: '90%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -111,15 +117,22 @@ const styles = StyleSheet.create({
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
+  },
+  modalHeaderText: {
+    flex: 1,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1e293b',
+  },
+  modalSubject: {
+    fontSize: 16,
+    color: '#64748b',
+    marginTop: 2,
   },
   closeButton: {
     padding: 4,
@@ -136,18 +149,11 @@ const styles = StyleSheet.create({
     color: '#64748b',
     marginBottom: 8,
   },
-  selectContainer: {
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  select: {
-    width: '100%',
-    height: 48,
-    paddingHorizontal: 12,
+  message: {
     fontSize: 16,
-    color: '#1e293b',
+    color: '#64748b',
+    textAlign: 'center',
+    lineHeight: 24,
   },
   modalFooter: {
     flexDirection: 'row',

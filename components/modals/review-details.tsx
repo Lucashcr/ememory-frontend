@@ -19,6 +19,7 @@ interface ReviewDetailsProps {
   onToggleComplete: (id: string) => void;
   onDelete?: (id: string) => void;
   currentDate?: string;
+  onRescheduleReview: (review: Review) => void;
 }
 
 export default function ReviewDetails({
@@ -28,6 +29,7 @@ export default function ReviewDetails({
   onToggleComplete,
   onDelete,
   currentDate,
+  onRescheduleReview
 }: ReviewDetailsProps) {
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
 
@@ -112,11 +114,10 @@ export default function ReviewDetails({
               ))}
             </ScrollView>
             <View style={styles.modalFooter}>
-              {(isPending || isCompleted) && (
+              {(isPending || isCompleted) ? (
                 <Pressable
                   style={[
                     styles.completeButton,
-                    isCompleted && styles.completeButtonActive,
                     !canToggleComplete && styles.completeButtonDisabled,
                   ]}
                   onPress={() => {
@@ -128,11 +129,19 @@ export default function ReviewDetails({
                   <Text
                     style={[
                       styles.completeButtonText,
-                      isCompleted && styles.completeButtonTextActive,
                       !canToggleComplete && styles.completeButtonTextDisabled,
                     ]}
                   >
                     {isCompleted ? 'Desmarcar como concluída' : 'Marcar como concluída'}
+                  </Text>
+                </Pressable>
+              ) : (
+                <Pressable style={styles.completeButton} onPress={() => {
+                  onRescheduleReview(review);
+                  onClose();
+                }}>
+                  <Text style={styles.completeButtonText}>
+                    Reagendar revisão
                   </Text>
                 </Pressable>
               )}
@@ -234,14 +243,10 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   completeButton: {
-    backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#6366f1',
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
-  },
-  completeButtonActive: {
     backgroundColor: '#6366f1',
     borderColor: '#6366f1',
   },
@@ -253,25 +258,10 @@ const styles = StyleSheet.create({
   completeButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6366f1',
-  },
-  completeButtonTextActive: {
     color: '#fff',
   },
   completeButtonTextDisabled: {
     color: '#94a3b8',
-  },
-  skipButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#f43f5e',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  skipButtonActive: {
-    backgroundColor: '#f43f5e',
-    borderColor: '#f43f5e',
   },
   dateRow: {
     padding: 12,
@@ -296,6 +286,16 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
   },
   deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    gap: 8,
+  },
+  rescheduleButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

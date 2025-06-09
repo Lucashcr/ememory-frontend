@@ -7,6 +7,7 @@ import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, formatDateToLocalString } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import FilterReviewsModal from '@/components/modals/filter-reviews';
+import RescheduleReviewModal from '@/components/modals/reschedule-review';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
@@ -23,6 +24,8 @@ export default function Calendar() {
   const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
   const [filterReviewsModalVisible, setFilterReviewsModalVisible] = useState(false);
   const [reviewsFilter, setReviewsFilter] = useState({subject: "all"});
+  const [rescheduleReviewModalVisible, setRescheduleReviewModalVisible] = useState(false);
+  const [reschuleReview, setRescheduleReview] = useState<Review>();
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -295,6 +298,19 @@ export default function Calendar() {
             toggleReview(review);
           }
         }}
+        onRescheduleReview={(review) => {
+          setRescheduleReview(review);
+          setRescheduleReviewModalVisible(true);
+        }}
+      />
+
+      <RescheduleReviewModal
+        visible={rescheduleReviewModalVisible}
+        onClose={() => {
+          setRescheduleReview(undefined);
+          setRescheduleReviewModalVisible(false);
+        }}
+        review={reschuleReview}
       />
     </View>
   );
