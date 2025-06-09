@@ -126,6 +126,7 @@ export default function DailyReviews() {
           }
         }}
         currentDate={today}
+        onRescheduleReview={() => {}}
       />
 
       <Pressable
