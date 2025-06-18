@@ -18,6 +18,7 @@ import {
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import FilterReviewsModal from '@/components/modals/filter-reviews';
 import RescheduleReviewModal from '@/components/modals/reschedule-review';
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
@@ -36,7 +37,7 @@ const MONTHS = [
 ];
 
 export default function Calendar() {
-  const { reviews, toggleReview, deleteReview, fetchReviews } = useReviews();
+  const { reviews, toggleReview, deleteReview, fetchReviews, isLoadingReviews } = useReviews();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(
@@ -210,7 +211,7 @@ export default function Calendar() {
         </View>
 
         <View style={{ padding: 4, marginTop: 16 }}>
-          {sortedReviewDates.map(([date, dateReviews]) => (
+          {isLoadingReviews ? <LoadingSkeleton mode="review" /> : sortedReviewDates.map(([date, dateReviews]) => (
             <View key={date} style={styles.dateReviews}>
               <Text style={styles.dateText}>
                 {formatDateToLocalString(date)}

@@ -34,7 +34,7 @@ type ReviewsContextType = {
   setReviews: (reviews: Review[]) => void;
   getDailyReviews: (date: string) => Review[];
   formatDate: (date: string | Date) => string;
-  isLoading: boolean;
+  isLoadingReviews: boolean;
   fetchReviews: () => Promise<void>;
 };
 
@@ -43,10 +43,11 @@ export const ReviewsContext = createContext<ReviewsContextType | undefined>(unde
 export function ReviewsProvider({ children }: { children: ReactNode }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [completedReviews, setCompletedReviews] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
 
   const fetchReviews = useCallback(async () => {
     try {
+      setIsLoadingReviews(true);
       const response = await api.get('/reviews/');
       
       const reviewsData = Array.isArray(response.data) ? response.data : [];
@@ -64,7 +65,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingReviews(false);
     }
   }, []);
 
@@ -173,7 +174,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     setReviews,
     getDailyReviews,
     formatDate: formatDateString,
-    isLoading,
+    isLoadingReviews,
     fetchReviews,
   };
 

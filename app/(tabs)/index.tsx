@@ -6,9 +6,10 @@ import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import NewReviewModal from '@/components/modals/new-review';
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
 
 export default function DailyReviews() {
-  const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews} = useReviews();
+  const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews, isLoadingReviews} = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [newReviewModalVisible, setNewReviewModalVisible] = useState(false);
   const [reviewDetailsModalVisible, setReviewDetailsModalVisible] = useState(false);
@@ -52,7 +53,7 @@ export default function DailyReviews() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl({fetchReviews})}>
-        {dailyReviews.map(review => {
+        {isLoadingReviews ? <LoadingSkeleton mode="review" /> : dailyReviews.map(review => {
           const reviewDate = review.review_dates.find(
             rd => rd.scheduled_for === today
           );
@@ -164,7 +165,10 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     elevation: 2,
   },
   reviewItemCompleted: {

@@ -26,12 +26,15 @@ import {
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import { Toast } from 'toastify-react-native';
 import { router } from 'expo-router';
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
 
 export default function Profile() {
-  const { signOut, user, fetchUserData } = useAuth();
+  const { signOut, user, fetchUserData, isLoadingUserData } = useAuth();
   const { setSubjects } = useSubjects();
   const { setReviews } = useReviews();
-  const { requestNotificationPermissions, scheduleReviewNotification } = useNotifications();
+  const { requestNotificationPermissions, scheduleReviewNotification } =
+    useNotifications();
+
   const [timePickerVisible, setTimePickerVisible] = useState(false);
   const [notificationTime, setNotificationTimeState] = useState({
     hour: 8,
@@ -73,7 +76,7 @@ export default function Profile() {
       const hasPermission = await requestNotificationPermissions();
       if (!hasPermission) {
         Toast.error(
-          'O aplicativo não possui permissão para enviar notificações ao dispositivo. Habilite as notificações nas configurações do dispositivo para poder configurar o horário das notificações.',
+          'O aplicativo não possui permissão para enviar notificações ao dispositivo. Habilite as notificações nas configurações do dispositivo para poder configurar o horário das notificações.'
         );
         return;
       }
@@ -82,12 +85,10 @@ export default function Profile() {
       setNotificationTimeState({ hour, minute });
       await scheduleReviewNotification();
 
-      Toast.success(
-        'Horário das notificações atualizado com sucesso!'
-      );
+      Toast.success('Horário das notificações atualizado com sucesso!');
     } catch {
       Toast.error(
-        'Não conseguimos salvar o horário das notificações. Tente novamente!',
+        'Não conseguimos salvar o horário das notificações. Tente novamente!'
       );
     }
   };
@@ -106,58 +107,65 @@ export default function Profile() {
       showsVerticalScrollIndicator={false}
       refreshControl={CustomRefreshControl({ fetchUserData })}
     >
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Dados do Usuário</Text>
+      {isLoadingUserData ? <LoadingSkeleton mode="review" /> : (
+        <>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Dados do Usuário</Text>
 
-        <View style={[styles.infoRow, styles.firstInfoRow]}>
-          <View style={styles.iconContainer}>
-            <UserIcon size={20} color="#64748b" />
-          </View>
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Nome</Text>
-            <Text style={styles.infoText}>
-              {user.first_name} {user.last_name}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.infoRow}>
-          <View style={styles.iconContainer}>
-            <Mail size={20} color="#64748b" />
-          </View>
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Email</Text>
-            <Text style={styles.infoText}>{user.email}</Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Configurações</Text>
-
-        <TouchableOpacity onPress={() => setTimePickerVisible(true)}>
-          <View style={[styles.infoRow, styles.firstInfoRow]}>
-            <View style={styles.iconContainer}>
-              <AlertCircle size={20} color="#64748b" />
+            <View style={[styles.infoRow, styles.firstInfoRow]}>
+              <View style={styles.iconContainer}>
+                <UserIcon size={20} color="#64748b" />
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Nome</Text>
+                <Text style={styles.infoText}>
+                  {user.first_name} {user.last_name}
+                </Text>
+              </View>
             </View>
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Notificações</Text>
-              <Text style={styles.infoText}>
-                Notificações diárias às{' '}
-                {formatTime(notificationTime.hour, notificationTime.minute)}
-              </Text>
+
+            <View style={styles.infoRow}>
+              <View style={styles.iconContainer}>
+                <Mail size={20} color="#64748b" />
+              </View>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoText}>{user.email}</Text>
+              </View>
             </View>
           </View>
-        </TouchableOpacity>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Conta</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <LogOut size={20} color="#ef4444" />
-          <Text style={styles.logoutText}>Sair da conta</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Configurações</Text>
+
+            <TouchableOpacity onPress={() => setTimePickerVisible(true)}>
+              <View style={[styles.infoRow, styles.firstInfoRow]}>
+                <View style={styles.iconContainer}>
+                  <AlertCircle size={20} color="#64748b" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>Notificações</Text>
+                  <Text style={styles.infoText}>
+                    Notificações diárias às{' '}
+                    {formatTime(notificationTime.hour, notificationTime.minute)}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Conta</Text>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <LogOut size={20} color="#ef4444" />
+              <Text style={styles.logoutText}>Sair da conta</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
 
       <TimePickerModal
         visible={timePickerVisible}

@@ -13,6 +13,7 @@ import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confir
 import { useReviews } from '@/contexts/ReviewsContext';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import { Toast } from 'toastify-react-native';
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
 
 const COLORS = [
   '#ef4444',
@@ -30,7 +31,7 @@ const COLORS = [
 ];
 
 export default function Subjects() {
-  const { subjects, addSubject, removeSubject, fetchSubjects } = useSubjects();
+  const { subjects, addSubject, removeSubject, fetchSubjects, isLoadingSubjects } = useSubjects();
   const { fetchReviews } = useReviews();
 
   const [newSubject, setNewSubject] = useState('');
@@ -87,7 +88,7 @@ export default function Subjects() {
         showsVerticalScrollIndicator={false}
         refreshControl={CustomRefreshControl({ fetchSubjects })}
       >
-        {subjects.map((subject) => (
+        {isLoadingSubjects ? <LoadingSkeleton mode="subjects" /> : subjects.map((subject) => (
           <View key={subject.id} style={styles.subjectItem}>
             <View
               style={[

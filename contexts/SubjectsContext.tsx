@@ -12,7 +12,7 @@ type SubjectsContextType = {
   addSubject: (name: string, color: string) => Promise<void>;
   removeSubject: (id: string) => Promise<void>;
   setSubjects: (subjects: Subject[]) => void;
-  isLoading: boolean;
+  isLoadingSubjects: boolean;
   error: string | null;
   fetchSubjects: () => Promise<void>;
 };
@@ -23,11 +23,11 @@ export const SubjectsContext = createContext<SubjectsContextType | undefined>(un
 
 export function SubjectsProvider({ children }: { children: ReactNode }) {
   const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSubjects = async () => {
-    setIsLoading(true);
+    setIsLoadingSubjects(true);
     setError(null);
     try {
       const response = await api.get('/reviews/subjects/');
@@ -36,7 +36,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
       setError('Failed to fetch subjects');
       console.error('Error fetching subjects:', err);
     } finally {
-      setIsLoading(false);
+      setIsLoadingSubjects(false);
     }
   };
 
@@ -45,7 +45,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addSubject = async (name: string, color: string) => {
-    setIsLoading(true);
+    setIsLoadingSubjects(true);
     setError(null);
     try {
       const response = await api.post('/reviews/subjects/', {
@@ -58,12 +58,12 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
       console.error('Error adding subject:', err);
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoadingSubjects(false);
     }
   };
 
   const removeSubject = async (id: string) => {
-    setIsLoading(true);
+    setIsLoadingSubjects(true);
     setError(null);
     try {
       await api.delete(`/reviews/subjects/${id}/`);
@@ -73,7 +73,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
       console.error('Error removing subject:', err);
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoadingSubjects(false);
     }
   };
 
@@ -82,7 +82,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
     addSubject,
     removeSubject,
     setSubjects,
-    isLoading,
+    isLoadingSubjects,
     error,
     fetchSubjects,
   };

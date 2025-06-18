@@ -12,7 +12,7 @@ interface UserData {
 interface AuthContextData {
   signed: boolean;
   token: string | null;
-  loading: boolean;
+  isLoadingUserData: boolean;
   user: UserData | null;
   signIn: (token: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -23,16 +23,18 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
   const [user, setUser] = useState<UserData | null>(null);
 
   const fetchUserData = async () => {
+    setIsLoadingUserData(true);
     try {
       const response = await api.get('/auth/users/me/');
       setUser(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
+    setIsLoadingUserData(false);
   };
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Error loading storage data:', error);
       } finally {
-        setLoading(false);
+        setIsLoadingUserData(false);
       }
     }
     loadStorageData();
@@ -76,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider 
-      value={{ signed: !!token, token, loading, user, signIn, signOut, fetchUserData }}
+      value={{ signed: !!token, token, isLoadingUserData, user, signIn, signOut, fetchUserData }}
     >
       {children}
     </AuthContext.Provider>
