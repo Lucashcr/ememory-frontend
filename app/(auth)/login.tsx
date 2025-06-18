@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import api from '@/services/api';
+import { Toast } from 'toastify-react-native';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -15,14 +16,11 @@ export default function Login() {
     try {
       const response = await api.post('/auth/token/login', { email, password });
       await signIn(response.data.auth_token);
+      Toast.success('Login realizado com sucesso!');
       router.replace('/(tabs)');
     } catch (error: any) {
-      if (error.response) {
-        Alert.alert('Erro', 'Credenciais inválidas! Verifique seu usuário e senha e tente novamente.');
-      } else if (error.request) {
-        Alert.alert('Erro', 'Erro de conexão com o servidor! Tente novamente mais tarde.');
-      } else {
-        Alert.alert('Erro', 'Ocorreu um erro inesperado');
+      if (error.response.status === 400) {
+        Toast.warn('Credenciais inválidas! Verifique seu usuário e senha e tente novamente.');
       }
     }
   };

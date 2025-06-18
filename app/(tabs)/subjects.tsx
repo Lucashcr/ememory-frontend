@@ -1,24 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  TextInput,
+} from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
 import { useReviews } from '@/contexts/ReviewsContext';
 import CustomRefreshControl from '@/components/layout/refresh-control';
+import { Toast } from 'toastify-react-native';
 
 const COLORS = [
-  '#ef4444', '#f97316', '#f59e0b', '#84cc16',
-  '#22c55e', '#14b8a6', '#0ea5e9', '#6366f1',
-  '#a855f7', '#d946ef', '#ec4899', '#f43f5e',
+  '#ef4444',
+  '#f97316',
+  '#f59e0b',
+  '#84cc16',
+  '#22c55e',
+  '#14b8a6',
+  '#0ea5e9',
+  '#6366f1',
+  '#a855f7',
+  '#d946ef',
+  '#ec4899',
+  '#f43f5e',
 ];
 
 export default function Subjects() {
-  const { subjects, addSubject, removeSubject } = useSubjects();
+  const { subjects, addSubject, removeSubject, fetchSubjects } = useSubjects();
+  const { fetchReviews } = useReviews();
+
   const [newSubject, setNewSubject] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [isAdding, setIsAdding] = useState(false);
-  const [subjectToDelete, setSubjectToDelete] = useState<{id: string, name: string} | null>(null);
-  const { fetchReviews } = useReviews();
+  const [subjectToDelete, setSubjectToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleAddSubject = () => {
     const trimmedName = newSubject.trim();
@@ -26,24 +47,22 @@ export default function Subjects() {
 
     // Verificar se já existe uma disciplina com o mesmo nome
     const duplicateName = subjects.find(
-      subject => subject.name.toLowerCase() === trimmedName.toLowerCase()
+      (subject) => subject.name.toLowerCase() === trimmedName.toLowerCase()
     );
     if (duplicateName) {
-      Alert.alert(
-        'Erro',
-        'Já existe uma disciplina com este nome. Por favor, escolha um nome diferente.'
+      Toast.warn(
+        'Já existe uma disciplina com este nome. Por favor, escolha um nome diferente!'
       );
       return;
     }
 
     // Verificar se já existe uma disciplina com a mesma cor
     const duplicateColor = subjects.find(
-      subject => subject.color === selectedColor
+      (subject) => subject.color === selectedColor
     );
     if (duplicateColor) {
-      Alert.alert(
-        'Erro',
-        'Esta cor já está sendo usada pela disciplina "' + duplicateColor.name + '". Por favor, escolha uma cor diferente.'
+      Toast.warn(
+        'Esta cor já está sendo usada. Por favor, escolha uma cor diferente!'
       );
       return;
     }
@@ -63,14 +82,26 @@ export default function Subjects() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
-        {subjects.map(subject => (
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={CustomRefreshControl({ fetchSubjects })}
+      >
+        {subjects.map((subject) => (
           <View key={subject.id} style={styles.subjectItem}>
-            <View style={[styles.colorIndicator, { backgroundColor: subject.color }]} />
+            <View
+              style={[
+                styles.colorIndicator,
+                { backgroundColor: subject.color },
+              ]}
+            />
             <Text style={styles.subjectName}>{subject.name}</Text>
             <Pressable
-              onPress={() => setSubjectToDelete({ id: subject.id, name: subject.name })}
-              style={styles.removeButton}>
+              onPress={() =>
+                setSubjectToDelete({ id: subject.id, name: subject.name })
+              }
+              style={styles.removeButton}
+            >
               <X size={20} color="#64748b" />
             </Pressable>
           </View>
@@ -86,8 +117,12 @@ export default function Subjects() {
             placeholder="Nome da disciplina"
             autoFocus
           />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorPicker}>
-            {COLORS.map(color => (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.colorPicker}
+          >
+            {COLORS.map((color) => (
               <Pressable
                 key={color}
                 style={[

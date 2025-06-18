@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import api from '@/services/api';
 import {validateEmail, validatePassword} from '@/services/validators';
+import { Toast } from 'toastify-react-native';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -20,76 +21,55 @@ export default function Register() {
 
   const handleRegister = async () => {
     if (!email || !firstName || !password) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios!');
+      Toast.warn('Preencha todos os campos obrigatórios!');
       return;
     }
 
     const emailValidation = validateEmail(email);
     if (emailValidation.error) {
-      Alert.alert('Erro', emailValidation.error);
+      Toast.warn(emailValidation.error);
       return;
     }
 
     const passwordValidation = validatePassword(password);
     if (passwordValidation.error) {
-      Alert.alert(
-        'Erro',
-        passwordValidation.error
-      );
+      Toast.warn(passwordValidation.error);
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem!');
+      Toast.warn('As senhas não coincidem!');
       return;
     }
 
-    try {
-      const response = await api.post('/auth/users/', {
-        email,
-        password,
-        first_name: firstName,
-        last_name: lastName,
-      });
-      if (response.status !== 201) {
-        Alert.alert(
-          'Erro',
-          'Erro ao registrar! Verifique suas credenciais e tente novamente.'
-        );
-        return;
-      }
-
-      const loginResponse = await api.post('/auth/token/login', {
-        email,
-        password,
-      });
-      await signIn(loginResponse.data.auth_token);
-
-      const [subjectsResponse, reviewsResponse] = await Promise.all([
-        api.get('/reviews/subjects/'),
-        api.get('/reviews/'),
-      ]);
-
-      setSubjects(subjectsResponse.data);
-      setReviews(reviewsResponse.data);
-
-      router.replace('/(tabs)');
-    } catch (error: any) {
-      if (error.response) {
-        Alert.alert(
-          'Erro',
-          'Erro ao registrar! Verifique suas credenciais e tente novamente.'
-        );
-      } else if (error.request) {
-        Alert.alert(
-          'Erro',
-          'Erro de conexão com o servidor! Tente novamente mais tarde.'
-        );
-      } else {
-        Alert.alert('Erro', 'Ocorreu um erro inesperado');
-      }
+    const response = await api.post('/auth/users/', {
+      email,
+      password,
+      first_name: firstName,
+      last_name: lastName,
+    });
+    if (response.status !== 201) {
+      Toast.error('Ocorreu um erro inesperado ao registrar! Tente novamente.');
+      return;
     }
+
+    const loginResponse = await api.post('/auth/token/login', {
+      email,
+      password,
+    });
+    await signIn(loginResponse.data.auth_token);
+
+    const [subjectsResponse, reviewsResponse] = await Promise.all([
+      api.get('/reviews/subjects/'),
+      api.get('/reviews/'),
+    ]);
+
+    setSubjects(subjectsResponse.data);
+    setReviews(reviewsResponse.data);
+
+    router.replace('/(tabs)');
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registrar</Text>

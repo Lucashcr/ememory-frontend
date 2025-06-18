@@ -8,7 +8,7 @@ import CustomRefreshControl from '@/components/layout/refresh-control';
 import NewReviewModal from '@/components/modals/new-review';
 
 export default function DailyReviews() {
-  const { reviews, isReviewCompleted, toggleReview, deleteReview } = useReviews();
+  const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews} = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [newReviewModalVisible, setNewReviewModalVisible] = useState(false);
   const [reviewDetailsModalVisible, setReviewDetailsModalVisible] = useState(false);
@@ -51,7 +51,7 @@ export default function DailyReviews() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl({fetchReviews})}>
         {dailyReviews.map(review => {
           const reviewDate = review.review_dates.find(
             rd => rd.scheduled_for === today

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   ScrollView,
 } from 'react-native';
@@ -25,6 +24,8 @@ import {
   setNotificationTime,
 } from '@/services/notificationTime';
 import CustomRefreshControl from '@/components/layout/refresh-control';
+import { Toast } from 'toastify-react-native';
+import { router } from 'expo-router';
 
 export default function Profile() {
   const { signOut, user, fetchUserData } = useAuth();
@@ -54,8 +55,10 @@ export default function Profile() {
       setSubjects([]);
       setReviews([]);
       await signOut();
+      Toast.success('Logout realizado com sucesso!');
+      router.replace('/(auth)/login');
     } catch {
-      Alert.alert('Erro', 'Não foi possível fazer logout. Tente novamente.');
+      Toast.error('Não foi possível fazer logout! Tente novamente!');
     }
   };
 
@@ -69,8 +72,7 @@ export default function Profile() {
     try {
       const hasPermission = await requestNotificationPermissions();
       if (!hasPermission) {
-        Alert.alert(
-          'Erro',
+        Toast.error(
           'O aplicativo não possui permissão para enviar notificações ao dispositivo. Habilite as notificações nas configurações do dispositivo para poder configurar o horário das notificações.',
         );
         return;
@@ -80,14 +82,12 @@ export default function Profile() {
       setNotificationTimeState({ hour, minute });
       await scheduleReviewNotification();
 
-      Alert.alert(
-        'Sucesso',
+      Toast.success(
         'Horário das notificações atualizado com sucesso!'
       );
     } catch {
-      Alert.alert(
-        'Erro',
-        'Não foi possível salvar o horário das notificações.'
+      Toast.error(
+        'Não conseguimos salvar o horário das notificações. Tente novamente!',
       );
     }
   };
@@ -104,7 +104,7 @@ export default function Profile() {
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
-      refreshControl={CustomRefreshControl()}
+      refreshControl={CustomRefreshControl({ fetchUserData })}
     >
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Dados do Usuário</Text>

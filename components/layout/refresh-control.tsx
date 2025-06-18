@@ -1,19 +1,32 @@
-import { useAuth } from '@/contexts/AuthContext';
-import { useReviews } from '@/contexts/ReviewsContext';
-import { useSubjects } from '@/contexts/SubjectsContext';
 import React, { useState } from 'react';
 import { RefreshControl } from 'react-native';
 
-export default function CustomRefreshControl() {
-  const [refreshing, setRefreshing] = useState(false);
+interface CustomRefreshControlProps {
+  fetchReviews?: () => Promise<void>;
+  fetchSubjects?: () => Promise<void>;
+  fetchUserData?: () => Promise<void>;
+}
 
-  const { fetchReviews } = useReviews();
-  const { fetchSubjects } = useSubjects();
-  const { fetchUserData } = useAuth();
+export default function CustomRefreshControl({
+  fetchReviews,
+  fetchSubjects,
+  fetchUserData,
+}: CustomRefreshControlProps) {
+  const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchReviews(), fetchSubjects(), fetchUserData()]);
+    const promises = [];
+    if (fetchReviews) {
+      promises.push(fetchReviews());
+    }
+    if (fetchSubjects) {
+      promises.push(fetchSubjects());
+    }
+    if (fetchUserData) {
+      promises.push(fetchUserData());
+    }
+    await Promise.all(promises);
     setRefreshing(false);
   };
 

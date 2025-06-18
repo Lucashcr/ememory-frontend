@@ -1,30 +1,55 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus, Check, Ban, Filter } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Check,
+  Ban,
+  Filter,
+} from 'lucide-react-native';
 import NewReviewModal from '@/components/modals/new-review';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
-import { formatDateString, formatDateToLocalString } from '@/services/dateUtils';
+import {
+  formatDateString,
+  formatDateToLocalString,
+} from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import FilterReviewsModal from '@/components/modals/filter-reviews';
 import RescheduleReviewModal from '@/components/modals/reschedule-review';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
 ];
 
 export default function Calendar() {
-  const { reviews, toggleReview, deleteReview } = useReviews();
+  const { reviews, toggleReview, deleteReview, fetchReviews } = useReviews();
+
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
+  const [selectedDate, setSelectedDate] = useState(
+    formatDateString(new Date())
+  );
   const [newReviewModalVisible, setNewReivewModalVisible] = useState(false);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [reviewDetailsVisible, setReviewDetailsVisible] = useState(false);
-  const [filterReviewsModalVisible, setFilterReviewsModalVisible] = useState(false);
-  const [reviewsFilter, setReviewsFilter] = useState({subject: "all"});
-  const [rescheduleReviewModalVisible, setRescheduleReviewModalVisible] = useState(false);
+  const [filterReviewsModalVisible, setFilterReviewsModalVisible] =
+    useState(false);
+  const [reviewsFilter, setReviewsFilter] = useState({ subject: 'all' });
+  const [rescheduleReviewModalVisible, setRescheduleReviewModalVisible] =
+    useState(false);
   const [reschuleReview, setRescheduleReview] = useState<Review>();
 
   const getDaysInMonth = (date: Date) => {
@@ -93,35 +118,46 @@ export default function Calendar() {
     return reviewDate?.status === 'completed';
   };
 
-  const filteredReviews = reviews.filter(
-    (review) => {
-      return reviewsFilter.subject === "all" || review.subject.id === reviewsFilter.subject
-    }
-  )
+  const filteredReviews = reviews.filter((review) => {
+    return (
+      reviewsFilter.subject === 'all' ||
+      review.subject.id === reviewsFilter.subject
+    );
+  });
 
   const days = getDaysInMonth(currentDate);
-  const reviewsByDate = filteredReviews.reduce((acc: { [key: string]: Review[] }, review) => {
-    review.review_dates.forEach(rd => {
-      const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
-      if (reviewDate.getMonth() === currentDate.getMonth() &&
-          reviewDate.getFullYear() === currentDate.getFullYear()) {
-        acc[rd.scheduled_for] = [...(acc[rd.scheduled_for] || []), review];
-      }
-    });
-    return acc;
-  }, {});
+  const reviewsByDate = filteredReviews.reduce(
+    (acc: { [key: string]: Review[] }, review) => {
+      review.review_dates.forEach((rd) => {
+        const reviewDate = new Date(rd.scheduled_for + 'T00:00:00');
+        if (
+          reviewDate.getMonth() === currentDate.getMonth() &&
+          reviewDate.getFullYear() === currentDate.getFullYear()
+        ) {
+          acc[rd.scheduled_for] = [...(acc[rd.scheduled_for] || []), review];
+        }
+      });
+      return acc;
+    },
+    {}
+  );
 
   const sortedReviewDates = Object.entries(reviewsByDate)
     .filter(([date]) => {
       const reviewDate = new Date(date + 'T00:00:00');
-      return reviewDate.getMonth() === currentDate.getMonth() && 
-             reviewDate.getFullYear() === currentDate.getFullYear();
+      return (
+        reviewDate.getMonth() === currentDate.getMonth() &&
+        reviewDate.getFullYear() === currentDate.getFullYear()
+      );
     })
     .sort(([dateA], [dateB]) => dateA.localeCompare(dateB));
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl()}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={CustomRefreshControl({ fetchReviews })}
+      >
         <View style={styles.header}>
           <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
             <ChevronLeft size={24} color="#64748b" />
@@ -156,17 +192,15 @@ export default function Calendar() {
                   </Text>
                   {reviewsByDate[dateStr] && (
                     <View style={styles.reviewIndicators}>
-                      {reviewsByDate[dateStr].map(
-                        (review, reviewIndex) => (
-                          <View
-                            key={reviewIndex}
-                            style={[
-                              styles.reviewDot,
-                              { backgroundColor: review.subject.color },
-                            ]}
-                          />
-                        )
-                      )}
+                      {reviewsByDate[dateStr].map((review, reviewIndex) => (
+                        <View
+                          key={reviewIndex}
+                          style={[
+                            styles.reviewDot,
+                            { backgroundColor: review.subject.color },
+                          ]}
+                        />
+                      ))}
                     </View>
                   )}
                 </>
@@ -183,9 +217,9 @@ export default function Calendar() {
               </Text>
               {dateReviews.map((review, index) => {
                 const isCompleted = isReviewCompleted(review, date);
-                const isSkipped = review.review_dates.find(
-                  rd => rd.scheduled_for === date
-                )?.status === 'skipped';
+                const isSkipped =
+                  review.review_dates.find((rd) => rd.scheduled_for === date)
+                    ?.status === 'skipped';
 
                 return (
                   <Pressable
@@ -263,7 +297,7 @@ export default function Calendar() {
       >
         <Plus size={24} color="#fff" />
       </Pressable>
-      
+
       <Pressable
         style={styles.filter}
         onPress={() => {
