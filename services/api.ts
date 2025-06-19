@@ -1,9 +1,10 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'toastify-react-native';
+import { router } from 'expo-router';
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.15.127:8000',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'https://ememory.up.railway.app',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -33,8 +34,8 @@ api.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           Toast.error("Parece que você não está logado! Que tal fazer login novamente?")
-          // Unauthorized - Clear storage and redirect to login
           await AsyncStorage.multiRemove(['@EMem:token', '@EMem:subjects', '@EMem:reviews']);
+          router.replace("/(auth)/login");
           break;
         case 403:
           // Forbidden
