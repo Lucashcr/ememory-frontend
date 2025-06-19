@@ -69,16 +69,24 @@ export default function Subjects() {
       return;
     }
 
-    addSubject(trimmedName, selectedColor);
-    setNewSubject('');
-    setIsAdding(false);
+    try {
+      addSubject(trimmedName, selectedColor);
+      setNewSubject('');
+      setIsAdding(false);
+    } catch {
+      Toast.error('Ocorreu um erro ao adicionar a disciplina. Tente novamente!');
+    }
   };
 
   const handleDeleteSubject = async () => {
     if (subjectToDelete) {
-      await removeSubject(subjectToDelete.id);
-      await fetchReviews();
-      setSubjectToDelete(null);
+      try {
+        await removeSubject(subjectToDelete.id);
+        await fetchReviews();
+        setSubjectToDelete(null);
+      } catch {
+        Toast.error('Ocorreu um erro ao excluir a disciplina. Tente novamente!');
+      }
     }
   };
 

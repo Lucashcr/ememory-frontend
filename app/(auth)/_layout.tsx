@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { View } from 'react-native';
 
 export default function AuthLayout() {
-  const { signed, loading } = useAuth();
+  const { signed, isLoadingUserData } = useAuth();
   const rootNavigationState = useRootNavigationState();
-
-  if (!rootNavigationState?.key || loading) {
+  
+  if (!rootNavigationState?.key || isLoadingUserData) {
     return (
       <View style={{ flex: 1, backgroundColor: '#fff' }} />
     );
