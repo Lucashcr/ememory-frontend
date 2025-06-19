@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  Check,
-  Ban,
-  Filter,
-} from 'lucide-react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Plus, Filter } from 'lucide-react-native';
 import NewReviewModal from '@/components/modals/new-review';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import {
   formatDateString,
-  formatDateToLocalString,
 } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import FilterReviewsModal from '@/components/modals/filter-reviews';
 import RescheduleReviewModal from '@/components/modals/reschedule-review';
-import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import CalendarHeader from '@/components/calendar/CalendarHeader';
+import WeekDays from '@/components/calendar/WeekDays';
+import CalendarGrid from '@/components/calendar/CalendarGrid';
+import ReviewList from '@/components/review/ReviewList';
+import getReviewScheduleLabel from '@/services/reviewScheduleLabel';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [
@@ -90,28 +86,6 @@ export default function Calendar() {
     setNewReivewModalVisible(true);
   };
 
-  const getReviewStatus = (review: Review, date: string) => {
-    const reviewIndex = review.review_dates.findIndex(
-      (rd) => rd.scheduled_for === date
-    );
-    switch (reviewIndex) {
-      case 0:
-        return 'Inicial';
-      case 1:
-        return '1 dia';
-      case 2:
-        return '7 dias';
-      case 3:
-        return '14 dias';
-      case 4:
-        return '28 dias';
-      case 5:
-        return '56 dias';
-      default:
-        return '';
-    }
-  };
-
   const isReviewCompleted = (review: Review, date: string) => {
     const reviewDate = review.review_dates.find(
       (rd) => rd.scheduled_for === date
@@ -159,134 +133,29 @@ export default function Calendar() {
         showsVerticalScrollIndicator={false}
         refreshControl={CustomRefreshControl({ fetchReviews })}
       >
-        <View style={styles.header}>
-          <Pressable onPress={() => changeMonth(-1)} style={styles.monthButton}>
-            <ChevronLeft size={24} color="#64748b" />
-          </Pressable>
-          <Text style={styles.monthYear}>
-            {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </Text>
-          <Pressable onPress={() => changeMonth(1)} style={styles.monthButton}>
-            <ChevronRight size={24} color="#64748b" />
-          </Pressable>
-        </View>
-
-        <View style={styles.weekDays}>
-          {DAYS.map((day) => (
-            <Text key={day} style={styles.weekDay}>
-              {day}
-            </Text>
-          ))}
-        </View>
-
-        <View style={styles.calendar}>
-          {days.map((dateStr, index) => (
-            <Pressable
-              key={index}
-              style={styles.dayContainer}
-              onPress={() => dateStr && handleDayPress(dateStr)}
-            >
-              {dateStr && (
-                <>
-                  <Text style={styles.dayNumber}>
-                    {new Date(dateStr + 'T00:00:00').getDate()}
-                  </Text>
-                  {reviewsByDate[dateStr] && (
-                    <View style={styles.reviewIndicators}>
-                      {reviewsByDate[dateStr].map((review, reviewIndex) => (
-                        <View
-                          key={reviewIndex}
-                          style={[
-                            styles.reviewDot,
-                            { backgroundColor: review.subject.color },
-                          ]}
-                        />
-                      ))}
-                    </View>
-                  )}
-                </>
-              )}
-            </Pressable>
-          ))}
-        </View>
-
-        <View style={{ padding: 4, marginTop: 16 }}>
-          {isLoadingReviews ? <LoadingSkeleton mode="review" /> : sortedReviewDates.map(([date, dateReviews]) => (
-            <View key={date} style={styles.dateReviews}>
-              <Text style={styles.dateText}>
-                {formatDateToLocalString(date)}
-              </Text>
-              {dateReviews.map((review, index) => {
-                const isCompleted = isReviewCompleted(review, date);
-                const isSkipped =
-                  review.review_dates.find((rd) => rd.scheduled_for === date)
-                    ?.status === 'skipped';
-
-                return (
-                  <Pressable
-                    key={`${review.id}-${index}`}
-                    style={[
-                      styles.reviewItem,
-                      isCompleted && styles.reviewItemCompleted,
-                      isSkipped && styles.reviewItemSkipped,
-                    ]}
-                    onPress={() => {
-                      setSelectedReview(review);
-                      setSelectedDate(date);
-                      setReviewDetailsVisible(true);
-                    }}
-                  >
-                    <View
-                      style={[
-                        styles.reviewColor,
-                        { backgroundColor: review.subject.color },
-                      ]}
-                    />
-                    <View style={styles.reviewContent}>
-                      <Text
-                        style={[
-                          styles.reviewTopic,
-                          isCompleted && styles.reviewTextCompleted,
-                          isSkipped && styles.reviewTextSkipped,
-                        ]}
-                      >
-                        {review.topic}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.reviewSubject,
-                          isCompleted && styles.reviewTextCompleted,
-                          isSkipped && styles.reviewTextSkipped,
-                        ]}
-                      >
-                        {review.subject.name}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.reviewDate,
-                          isCompleted && styles.reviewTextCompleted,
-                          isSkipped && styles.reviewTextSkipped,
-                        ]}
-                      >
-                        Data de revisão ({getReviewStatus(review, date)})
-                      </Text>
-                    </View>
-                    {isSkipped && (
-                      <View style={styles.skippedIcon}>
-                        <Ban size={16} color="#f43f5e" />
-                      </View>
-                    )}
-                    {isCompleted && (
-                      <View style={styles.completedCheckmark}>
-                        <Check size={16} color="#22c55e" />
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-          ))}
-        </View>
+        <CalendarHeader
+          currentDate={currentDate}
+          onPrevMonth={() => changeMonth(-1)}
+          onNextMonth={() => changeMonth(1)}
+          months={MONTHS}
+        />
+        <WeekDays days={DAYS} />
+        <CalendarGrid
+          days={days}
+          reviewsByDate={reviewsByDate}
+          onDayPress={handleDayPress}
+        />
+        <ReviewList
+          isLoading={isLoadingReviews}
+          sortedReviewDates={sortedReviewDates}
+          isReviewCompleted={isReviewCompleted}
+          getReviewScheduleLabel={getReviewScheduleLabel}
+          onReviewPress={(review, date) => {
+            setSelectedReview(review);
+            setSelectedDate(date);
+            setReviewDetailsVisible(true);
+          }}
+        />
       </ScrollView>
 
       <Pressable
@@ -358,99 +227,6 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 8,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  monthButton: {
-    padding: 8,
-  },
-  monthYear: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  weekDays: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  weekDay: {
-    flex: 1,
-    textAlign: 'center',
-    color: '#64748b',
-    fontWeight: '500',
-  },
-  calendar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  dayContainer: {
-    width: `${100 / 7}%`,
-    aspectRatio: 1,
-    minHeight: 50,
-    padding: 4,
-    borderWidth: 0.5,
-    borderColor: '#e2e8f0',
-    backgroundColor: '#fff',
-  },
-  dayNumber: {
-    fontSize: 14,
-    color: '#1e293b',
-  },
-  reviewIndicators: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 2,
-  },
-  reviewDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    margin: 1,
-  },
-  dateReviews: {
-    marginBottom: 16,
-  },
-  dateText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
-    marginBottom: 8,
-  },
-  reviewItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  reviewColor: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  reviewTopic: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1e293b',
-  },
-  reviewSubject: {
-    fontSize: 12,
-    color: '#64748b',
-  },
   fab: {
     position: 'absolute',
     right: 16,
@@ -482,37 +258,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-  },
-  reviewItemCompleted: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  reviewTextCompleted: {
-    color: '#94a3b8',
-    textDecorationLine: 'line-through',
-  },
-  reviewContent: {
-    flex: 1,
-  },
-  completedCheckmark: {
-    marginLeft: 8,
-  },
-  reviewDate: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 2,
-  },
-  reviewItemSkipped: {
-    backgroundColor: '#f8fafc',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
-  reviewTextSkipped: {
-    color: '#94a3b8',
-    textDecorationLine: 'line-through',
-  },
-  skippedIcon: {
-    marginLeft: 8,
   },
 });

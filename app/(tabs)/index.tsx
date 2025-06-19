@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Check, Plus } from 'lucide-react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { Plus } from 'lucide-react-native';
 import ReviewDetails from '@/components/modals/review-details';
 import { useReviews, Review } from '@/contexts/ReviewsContext';
 import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import NewReviewModal from '@/components/modals/new-review';
-import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import ReviewListDaily from '@/components/review/ReviewListDaily';
+import getReviewScheduleLabel from '@/services/reviewScheduleLabel';
 
 export default function DailyReviews() {
   const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews, isLoadingReviews} = useReviews();
@@ -21,30 +22,6 @@ export default function DailyReviews() {
     review.review_dates.some(rd => rd.scheduled_for === today)
   );
 
-  const getReviewStatus = (review: Review, date: string) => {
-    const reviewIndex = review.review_dates.findIndex(rd => rd.scheduled_for === date);
-    switch (reviewIndex) {
-      case 0:
-        return 'Inicial';
-      case 1:
-        return '1 dia';
-      case 2:
-        return '7 dias';
-      case 3:
-        return '15 dias';
-      case 4:
-        return '30 dias';
-      case 5:
-        return '60 dias';
-      default:
-        return '';
-    }
-  };
-
-  const reviewTypeText = (review: Review) => {
-    return `Data de revisão (${getReviewStatus(review, today)})`;
-  };
-
   const openReviewDetails = (review: Review) => {
     setSelectedReview(review);
     setReviewDetailsModalVisible(true);
@@ -53,66 +30,15 @@ export default function DailyReviews() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl({fetchReviews})}>
-        {isLoadingReviews ? <LoadingSkeleton mode="review" /> : dailyReviews.map(review => {
-          const reviewDate = review.review_dates.find(
-            rd => rd.scheduled_for === today
-          );
-          const isSkipped = reviewDate?.status === 'skipped';
-          const isPending = reviewDate?.status === 'pending';
-          const completed = isReviewCompleted(review);
-
-          if (!isSkipped) {
-            return (
-              <Pressable
-                key={review.id}
-                style={[
-                  styles.reviewItem,
-                  completed && styles.reviewItemCompleted
-                ]}
-                onPress={() => openReviewDetails(review)}>
-                <Pressable
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    if (isPending || completed) {
-                      toggleReview(review);
-                    }
-                  }}
-                  style={[
-                    styles.checkboxContainer,
-                    !isPending && !completed && styles.checkboxContainerDisabled
-                  ]}>
-                  <View style={[
-                    styles.checkbox,
-                    completed && styles.checkboxChecked,
-                    !isPending && !completed && styles.checkboxDisabled,
-                  ]}>
-                    {completed && (
-                      <Check size={16} color="#fff" />
-                    )}
-                  </View>
-                </Pressable>
-                <View style={styles.reviewContent}>
-                  <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
-                  <View>
-                    <Text style={[
-                      styles.topicText,
-                      completed && styles.reviewTextCompleted
-                    ]}>{review.topic}</Text>
-                    <Text style={[
-                      styles.subjectText,
-                      completed && styles.reviewTextCompleted
-                    ]}>{review.subject.name}</Text>
-                    <Text style={[
-                      styles.reviewTypeText,
-                      completed && styles.reviewTextCompleted
-                    ]}>{reviewTypeText(review)}</Text>
-                  </View>
-                </View>
-              </Pressable>
-            );
-          }
-          return null;
-        })}
+        <ReviewListDaily
+          isLoading={isLoadingReviews}
+          reviews={dailyReviews}
+          today={today}
+          isReviewCompleted={isReviewCompleted}
+          getReviewScheduleLabel={getReviewScheduleLabel}
+          onReviewPress={openReviewDetails}
+          onToggleReview={toggleReview}
+        />
       </ScrollView>
 
       <ReviewDetails
