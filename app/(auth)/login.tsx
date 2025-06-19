@@ -19,7 +19,7 @@ export default function Login() {
       Toast.success('Login realizado com sucesso!');
       router.replace('/(tabs)');
     } catch (error: any) {
-      if (error.response.status === 400) {
+      if (error?.response?.status === 400) {
         Toast.warn('Credenciais inválidas! Verifique seu usuário e senha e tente novamente.');
       }
     }

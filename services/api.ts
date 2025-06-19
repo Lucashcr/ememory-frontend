@@ -5,6 +5,7 @@ import { Toast } from 'toastify-react-native';
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://192.168.15.127:8000',
   headers: {
+    'Accept': 'application/json',
     'Content-Type': 'application/json',
   },
 });
