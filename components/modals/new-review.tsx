@@ -13,6 +13,7 @@ import {
 import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import { formatDateToLocalString } from '@/services/dateUtils';
+import { Toast } from 'toastify-react-native';
 
 interface NewReviewModalProps {
   visible: boolean;
@@ -32,23 +33,29 @@ export default function NewReviewModal({
   const [notes, setNotes] = useState('');
 
   const handleSubmit = () => {
-    const selectedSubject = subjects.find(s => s.id === subject);
-    if (selectedSubject) {
-      const newReview = {
-        topic: title,
-        subject_id: selectedSubject.id,
-        notes,
-        initial_date: selectedDate,
-      };
-      
-      addReview(newReview);
-    }
+    try {
+      const selectedSubject = subjects.find((s) => s.id === subject);
+      if (selectedSubject) {
+        const newReview = {
+          topic: title,
+          subject_id: selectedSubject.id,
+          notes,
+          initial_date: selectedDate,
+        };
 
-    // Reset form and close modal
-    setTitle('');
-    setSubject('');
-    setNotes('');
-    onClose();
+        addReview(newReview);
+      }
+
+      // Reset form and close modal
+      setTitle('');
+      setSubject('');
+      setNotes('');
+      onClose();
+    } catch {
+      Toast.error(
+        'Ocorreu um erro ao criar a revisão. Por favor, tente novamente.'
+      );
+    }
   };
 
   return (

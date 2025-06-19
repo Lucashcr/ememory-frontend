@@ -11,6 +11,7 @@ import { X, Trash2 } from 'lucide-react-native';
 import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
 import type { Review } from '@/contexts/ReviewsContext';
 import DeleteReviewConfirmation from './delete-review-confirmation';
+import { Toast } from 'toastify-react-native';
 
 interface ReviewDetailsProps {
   review: Review | null;
@@ -53,8 +54,14 @@ export default function ReviewDetails({
 
   const handleDelete = () => {
     if (onDelete) {
-      onDelete(review.id);
-      onClose();
+      try {
+        onDelete(review.id);
+        onClose();
+      } catch {
+        Toast.error(
+          'Ocorreu um erro ao excluir a revisão. Por favor, tente novamente.'
+        );
+      }
     }
   };
 
