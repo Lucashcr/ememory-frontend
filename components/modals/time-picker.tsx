@@ -59,7 +59,7 @@ export default function TimePickerModal({
                     <Picker.Item
                       key={hour}
                       label={formatNumber(hour)}
-                      value={hour}
+                      value={hour.toString()}
                     />
                   ))}
                 </Picker>
@@ -77,7 +77,7 @@ export default function TimePickerModal({
                     <Picker.Item
                       key={minute}
                       label={formatNumber(minute)}
-                      value={minute}
+                      value={minute.toString()}
                     />
                   ))}
                 </Picker>

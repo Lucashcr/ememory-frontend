@@ -81,8 +81,12 @@ export default function Profile() {
         return;
       }
 
-      await setNotificationTime(hour, minute);
-      setNotificationTimeState({ hour, minute });
+      const parsedTime = {
+        hour: parseInt(hour.toString(), 10),
+        minute: parseInt(minute.toString(), 10),
+      }
+      await setNotificationTime(parsedTime.hour, parsedTime.minute);
+      setNotificationTimeState(parsedTime);
       await scheduleReviewNotification();
 
       Toast.success('Horário das notificações atualizado com sucesso!');
