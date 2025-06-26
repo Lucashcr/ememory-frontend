@@ -28,7 +28,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Revisões para hoje',
+          title: 'Atividades para hoje',
           tabBarIcon: ({ color, size }) => (
             <CheckSquare size={size} color={color} />
           ),

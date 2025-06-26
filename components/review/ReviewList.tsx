@@ -71,7 +71,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                       isSkipped && styles.reviewTextSkipped,
                     ]}
                   >
-                    Data de revisão ({getReviewScheduleLabel(review, date)})
+                    {getReviewScheduleLabel(review, date)}
                   </Text>
                 </View>
                 {isSkipped && (
