@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Check } from 'lucide-react-native';
 import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import Checkbox from '@/components/checkbox';
 
 interface ReviewListDailyProps {
   isLoading: boolean;
@@ -40,27 +40,16 @@ const ReviewListDaily: React.FC<ReviewListDailyProps> = ({
                 completed && styles.reviewItemCompleted
               ]}
               onPress={() => onReviewPress(review)}>
-              <Pressable
+              <Checkbox
                 onPress={(e) => {
                   e.stopPropagation();
                   if (isPending || completed) {
                     onToggleReview(review);
                   }
                 }}
-                style={[
-                  styles.checkboxContainer,
-                  !isPending && !completed && styles.checkboxContainerDisabled
-                ]}>
-                <View style={[
-                  styles.checkbox,
-                  completed && styles.checkboxChecked,
-                  !isPending && !completed && styles.checkboxDisabled,
-                ]}>
-                  {completed && (
-                    <Check size={16} color="#fff" />
-                  )}
-                </View>
-              </Pressable>
+                checked={completed}
+                disabled={!isPending && !completed}
+              />
               <View style={styles.reviewContent}>
                 <View style={[styles.subjectIndicator, { backgroundColor: review.subject.color }]} />
                 <View>
@@ -106,23 +95,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e2e8f0',
   },
-  checkboxContainer: {
-    padding: 4,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#cbd5e1',
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: '#6366f1',
-    borderColor: '#6366f1',
-  },
   reviewContent: {
     flex: 1,
     flexDirection: 'row',
@@ -148,13 +120,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94a3b8',
     marginTop: 2,
-  },
-  checkboxContainerDisabled: {
-    opacity: 0.5,
-  },
-  checkboxDisabled: {
-    backgroundColor: '#f1f5f9',
-    borderColor: '#cbd5e1',
   },
   reviewTextCompleted: {
     color: '#94a3b8',
