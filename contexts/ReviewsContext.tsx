@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import api from '../services/api';
 import { formatDateString, getCurrentDate } from '../services/dateUtils';
 import { Subject } from './SubjectsContext';
@@ -36,6 +36,7 @@ type ReviewsContextType = {
   formatDate: (date: string | Date) => string;
   isLoadingReviews: boolean;
   fetchReviews: () => Promise<void>;
+  updateReview: (reviewId: string, data: any) => Promise<void>;
 };
 
 export const ReviewsContext = createContext<ReviewsContextType | undefined>(undefined);
@@ -136,8 +137,8 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
 
   const addReview = async (review: NewReview) => {
     try {
-      const response = await api.post('/reviews/', review);
-      setReviews(prev => [...prev, response.data]);
+      await api.post('/reviews/', review);
+      fetchReviews();
     } catch (error) {
       console.error('Error adding review:', error);
       throw error;
@@ -163,6 +164,11 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const updateReview = async (reviewId: string, data: Partial<Review>) => {
+    await api.patch(`/reviews/${reviewId}/`, data)
+    await fetchReviews();
+  }
+
   const value = {
     reviews,
     completedReviews,
@@ -176,6 +182,7 @@ export function ReviewsProvider({ children }: { children: ReactNode }) {
     formatDate: formatDateString,
     isLoadingReviews,
     fetchReviews,
+    updateReview
   };
 
   return (

@@ -36,3 +36,6 @@ yarn-error.*
 # development build
 android/
 ios/
+
+# environment file
+.env

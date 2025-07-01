@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import Checkbox from '@/components/checkbox';
+import { useReviews } from '@/contexts/ReviewsContext';
+import { useSubjects } from '@/contexts/SubjectsContext';
+import {
+  formatDateString,
+  formatDateToLocalString,
+} from '@/services/dateUtils';
 import { Picker } from '@react-native-picker/picker';
 import { X } from 'lucide-react-native';
+import React, { useState } from 'react';
 import {
   Modal,
   Pressable,
@@ -10,9 +17,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useReviews } from '@/contexts/ReviewsContext';
-import { useSubjects } from '@/contexts/SubjectsContext';
-import { formatDateToLocalString } from '@/services/dateUtils';
 import { Toast } from 'toastify-react-native';
 
 interface NewReviewModalProps {
@@ -31,6 +35,7 @@ export default function NewReviewModal({
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [notes, setNotes] = useState('');
+  const [markFirst, setMarkFirst] = useState(true);
 
   const handleSubmit = () => {
     try {
@@ -41,6 +46,7 @@ export default function NewReviewModal({
           subject_id: selectedSubject.id,
           notes,
           initial_date: selectedDate,
+          mark_first: selectedDate === formatDateString(new Date) ? markFirst : false,
         };
 
         addReview(newReview);
@@ -107,6 +113,19 @@ export default function NewReviewModal({
                 {formatDateToLocalString(selectedDate)}
               </Text>
             </View>
+
+            {selectedDate === formatDateString(new Date()) && (
+              <View style={[styles.formGroup, {flexDirection: "row", alignItems: "center"}]}>
+                <Checkbox
+                  onPress={() => {setMarkFirst(!markFirst)}}
+                  checked={markFirst}
+                />
+                <Text
+                  style={[styles.label, {marginBottom: 0}]}
+                  onPress={() => {setMarkFirst(!markFirst)}}
+                >Marcar primeiro dia como feito</Text>
+              </View>
+            )}
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Observações</Text>

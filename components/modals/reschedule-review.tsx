@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Review, useReviews } from '@/contexts/ReviewsContext';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import Checkbox from '@/components/checkbox';
 import DatePickerWrapper from '@/components/date-picker';
-import api from '@/services/api';
+import { Review, useReviews } from '@/contexts/ReviewsContext';
+import { formatDateString } from '@/services/dateUtils';
+import { X } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 interface RescheduleReviewModalProps {
   review: Review | undefined;
@@ -17,7 +18,8 @@ export default function RescheduleReviewModal({
   onClose,
 }: RescheduleReviewModalProps) {
   const [newInitialDate, setNewInitialDate] = useState(new Date());
-  const {fetchReviews} = useReviews();
+  const [markFirst, setMarkFirst] = useState(true);
+  const {fetchReviews, updateReview} = useReviews();
   
   if (!review) {
     return;
@@ -53,9 +55,21 @@ export default function RescheduleReviewModal({
             <View style={styles.formGroup}>
               <Text style={styles.label}>Reagendar para:</Text>
             </View>
+
             <View style={styles.formGroup}>
               <DatePickerWrapper date={newInitialDate} setDate={setNewInitialDate} />
             </View>
+            
+            {formatDateString(newInitialDate) === formatDateString(new Date()) && (
+              <View style={[styles.formGroup, {flexDirection: "row", alignItems: "center"}]}>
+                <Checkbox
+                  onPress={() => {setMarkFirst(!markFirst)}}
+                  checked={markFirst}
+                />
+                <Text style={[styles.label, {marginBottom: 0}]}>Marcar primeiro dia como feito</Text>
+              </View>
+            )}
+
             <View style={styles.formGroup}>
               <Text style={styles.message}>
                 Tem certeza que deseja reagendar? Todos os agendamentos para esta revisão serão atualizados, começando a partir da nova data selecionada.
@@ -73,11 +87,11 @@ export default function RescheduleReviewModal({
             <Pressable
               style={[styles.button, styles.submitButton]}
               onPress={async () => {
-                await api.patch(`/reviews/${review.id}/`, {
-                  "initial_date": newInitialDate.toISOString().split('T')[0],
+                await updateReview(review.id, {
+                  initial_date: newInitialDate.toISOString().split('T')[0],
+                  mark_first: markFirst,
                 })
-                await fetchReviews();
-                onClose();
+                fetchReviews()
               }}
             >
               <Text style={styles.submitButtonText}>Reagendar Revisão</Text>

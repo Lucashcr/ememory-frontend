@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Plus } from 'lucide-react-native';
-import ReviewDetails from '@/components/modals/review-details';
-import { useReviews, Review } from '@/contexts/ReviewsContext';
-import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import CustomRefreshControl from '@/components/layout/refresh-control';
 import NewReviewModal from '@/components/modals/new-review';
+import ReviewDetails from '@/components/modals/review-details';
 import ReviewListDaily from '@/components/review/ReviewListDaily';
+import { Review, useReviews } from '@/contexts/ReviewsContext';
+import { formatDateString, getCurrentDate } from '@/services/dateUtils';
 import getReviewScheduleLabel from '@/services/reviewScheduleLabel';
+import { Plus } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function DailyReviews() {
   const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews, isLoadingReviews} = useReviews();
@@ -17,7 +17,6 @@ export default function DailyReviews() {
   const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
   
   const today = getCurrentDate();
-  
   const dailyReviews = reviews.filter(review => 
     review.review_dates.some(rd => rd.scheduled_for === today)
   );
