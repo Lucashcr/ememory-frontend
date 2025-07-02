@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import LoadingSkeleton from '@/components/layout/loading-skeleton';
 import Checkbox from '@/components/checkbox';
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface ReviewListDailyProps {
   isLoading: boolean;
@@ -64,7 +64,7 @@ const ReviewListDaily: React.FC<ReviewListDailyProps> = ({
                   <Text style={[
                     styles.reviewTypeText,
                     completed && styles.reviewTextCompleted
-                  ]}>{`Data de revisão (${getReviewScheduleLabel(review, today)})`}</Text>
+                  ]}>{getReviewScheduleLabel(review, today)}</Text>
                 </View>
               </View>
             </Pressable>
