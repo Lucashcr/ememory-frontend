@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { X } from 'lucide-react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface Subject {
   id: string;
@@ -12,20 +12,25 @@ interface SubjectListProps {
   subjects: Subject[];
   isLoading: boolean;
   onDelete: (subject: { id: string; name: string }) => void;
+  onEdit?: (subject: { id: string; name: string; color: string }) => void;
 }
 
-const SubjectList: React.FC<SubjectListProps> = ({ subjects, isLoading, onDelete }) => {
+const SubjectList: React.FC<SubjectListProps> = ({ subjects, isLoading, onDelete, onEdit }) => {
   if (isLoading) return null;
   return (
     <>
       {subjects.map((subject) => (
-        <View key={subject.id} style={styles.subjectItem}>
+        <Pressable
+          key={subject.id}
+          style={styles.subjectItem}
+          onPress={onEdit ? () => onEdit(subject) : undefined}
+        >
           <View style={[styles.colorIndicator, { backgroundColor: subject.color }]} />
           <Text style={styles.subjectName}>{subject.name}</Text>
-          <Pressable onPress={() => onDelete({ id: subject.id, name: subject.name })} style={styles.removeButton}>
+          <Pressable onPress={() => onDelete({ id: subject.id, name: subject.name })} style={styles.removeButton} hitSlop={8}>
             <X size={20} color="#64748b" />
           </Pressable>
-        </View>
+        </Pressable>
       ))}
     </>
   );

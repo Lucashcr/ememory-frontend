@@ -38,16 +38,16 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({ visible, initialCol
           </ReanimatedColorPicker>
           <View style={styles.buttonRow}>
             <Pressable
-              style={[styles.closeButton, styles.selectButton]}
-              onPress={() => onSelect(tempColor)}
-            >
-              <Text style={styles.buttonText}>Selecionar</Text>
-            </Pressable>
-            <Pressable
               style={[styles.closeButton, styles.cancelButton]}
               onPress={onClose}
             >
-              <Text style={styles.buttonText}>Cancelar</Text>
+              <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancelar</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.closeButton, styles.selectButton]}
+              onPress={() => onSelect(tempColor)}
+            >
+              <Text style={[styles.buttonText, styles.confirmButtonText]}>Selecionar</Text>
             </Pressable>
           </View>
         </View>
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     marginTop: 16,
+    gap: 8,
   },
   closeButton: {
     backgroundColor: '#6366f1',
@@ -100,15 +101,19 @@ const styles = StyleSheet.create({
   },
   selectButton: {
     backgroundColor: '#6366f1',
-    marginRight: 8,
   },
   cancelButton: {
-    backgroundColor: '#64748b',
+    backgroundColor: '#f1f5f9',
   },
   buttonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  confirmButtonText: {
+    color: '#fff',
+  },
+  cancelButtonText: {
+    color: '#64748b',
   },
 });
 

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import api from '@/services/api';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export type Subject = {
   id: string;
@@ -15,6 +15,7 @@ type SubjectsContextType = {
   isLoadingSubjects: boolean;
   error: string | null;
   fetchSubjects: () => Promise<void>;
+  updateSubject: (id: string, name: string, color: string) => Promise<void>;
 };
 
 const initialSubjects: Subject[] = [];
@@ -77,6 +78,23 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateSubject = async (id: string, name: string, color: string) => {
+    setIsLoadingSubjects(true);
+    setError(null);
+    try {
+      const response = await api.put(`/reviews/subjects/${id}/`, { name, color });
+      setSubjects(prev => prev.map(subject =>
+        subject.id === id ? response.data : subject
+      ));
+    } catch (err) {
+      setError('Failed to update subject');
+      console.error('Error updating subject:', err);
+      throw err;
+    } finally {
+      setIsLoadingSubjects(false);
+    }
+  };
+
   const value = {
     subjects,
     addSubject,
@@ -85,6 +103,7 @@ export function SubjectsProvider({ children }: { children: ReactNode }) {
     isLoadingSubjects,
     error,
     fetchSubjects,
+    updateSubject,
   };
 
   return (

@@ -11,8 +11,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
+  View
 } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
@@ -31,18 +30,23 @@ const COLORS = [
 ];
 
 export default function Subjects() {
-  const { subjects, addSubject, removeSubject, fetchSubjects, isLoadingSubjects } = useSubjects();
+  const { subjects, addSubject, updateSubject, removeSubject, fetchSubjects, isLoadingSubjects } = useSubjects();
   const { fetchReviews } = useReviews();
 
   const [newSubject, setNewSubject] = useState('');
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
-  const [isAdding, setIsAdding] = useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<{
     id: string;
     name: string;
   } | null>(null);
+  const [editingSubject, setEditingSubject] = useState<{
+    id: string;
+    name: string;
+    color: string;
+  } | null>(null);
+  const [formVisible, setFormVisible] = useState(false);
 
-  const handleAddSubject = () => {
+  const handleAddSubject = async () => {
     const trimmedName = newSubject.trim();
     if (!trimmedName) return;
 
@@ -69,9 +73,10 @@ export default function Subjects() {
     }
 
     try {
-      addSubject(trimmedName, selectedColor);
+      await addSubject(trimmedName, selectedColor);
       setNewSubject('');
-      setIsAdding(false);
+      setSelectedColor(COLORS[0]);
+      setFormVisible(false);
     } catch {
       Toast.error('Ocorreu um erro ao adicionar a disciplina. Tente novamente!');
     }
@@ -89,6 +94,53 @@ export default function Subjects() {
     }
   };
 
+  const handleEditSubject = (subject: { id: string; name: string; color: string }) => {
+    setEditingSubject(subject);
+    setNewSubject(subject.name);
+    setSelectedColor(subject.color);
+    setFormVisible(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSubject) return;
+    const trimmedName = newSubject.trim();
+    if (!trimmedName) return;
+
+    // Verificar se já existe uma disciplina com o mesmo nome (exceto a atual)
+    const duplicateName = subjects.find(
+      (subject) => subject.name.toLowerCase() === trimmedName.toLowerCase() && subject.id !== editingSubject.id
+    );
+    if (duplicateName) {
+      Toast.warn('Já existe uma disciplina com este nome. Por favor, escolha um nome diferente!');
+      return;
+    }
+    // Verificar se já existe uma disciplina com a mesma cor (exceto a atual)
+    const duplicateColor = subjects.find(
+      (subject) => subject.color === selectedColor && subject.id !== editingSubject.id
+    );
+    if (duplicateColor) {
+      Toast.warn('Esta cor já está sendo usada. Por favor, escolha uma cor diferente!');
+      return;
+    }
+    try {
+      await updateSubject(editingSubject.id, trimmedName, selectedColor);
+      await fetchSubjects();
+      setEditingSubject(null);
+      setNewSubject('');
+      setSelectedColor(COLORS[0]);
+      setFormVisible(false);
+    } catch {
+      Toast.error('Ocorreu um erro ao editar a disciplina. Tente novamente!');
+    }
+  };
+
+  const handleCancelForm = () => {
+    setEditingSubject(null);
+    setNewSubject('');
+    setSelectedColor(COLORS[0]);
+    setFormVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -103,24 +155,31 @@ export default function Subjects() {
             subjects={subjects}
             isLoading={isLoadingSubjects}
             onDelete={setSubjectToDelete}
+            onEdit={handleEditSubject}
           />
         )}
       </ScrollView>
 
-      {isAdding ? (
+      {!formVisible && (
+        <Pressable
+          style={styles.fab}
+          onPress={() => setFormVisible(true)}
+          accessibilityLabel="Adicionar nova disciplina"
+        >
+          <Plus size={24} color="#fff" />
+        </Pressable>
+      )}
+      {formVisible && (
         <SubjectAddForm
           newSubject={newSubject}
           setNewSubject={setNewSubject}
           selectedColor={selectedColor}
           setSelectedColor={setSelectedColor}
           COLORS={COLORS}
-          onAdd={handleAddSubject}
+          onAdd={editingSubject ? handleSaveEdit : handleAddSubject}
+          onCancel={handleCancelForm}
+          addButtonText={editingSubject ? 'Confirmar' : 'Adicionar'}
         />
-      ) : (
-        <Pressable style={styles.addButton} onPress={() => setIsAdding(true)}>
-          <Plus size={20} color="#fff" />
-          <Text style={styles.addButtonText}>Nova Disciplina</Text>
-        </Pressable>
       )}
 
       <DeleteSubjectConfirmation
@@ -142,19 +201,20 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  addButton: {
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#6366f1',
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 16,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

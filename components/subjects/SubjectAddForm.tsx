@@ -17,6 +17,8 @@ interface SubjectAddFormProps {
   setSelectedColor: (color: string) => void;
   COLORS: string[];
   onAdd: () => void;
+  onCancel: () => void;
+  addButtonText?: string;
 }
 
 const SubjectAddForm: React.FC<SubjectAddFormProps> = ({
@@ -26,6 +28,8 @@ const SubjectAddForm: React.FC<SubjectAddFormProps> = ({
   setSelectedColor,
   COLORS,
   onAdd,
+  onCancel,
+  addButtonText = 'Adicionar',
 }) => {
   const [showColorPicker, setShowColorPicker] = useState(false);
 
@@ -91,9 +95,14 @@ const SubjectAddForm: React.FC<SubjectAddFormProps> = ({
           </LinearGradient>
         </Pressable>
       </ScrollView>
-      <Pressable style={styles.addButton} onPress={onAdd}>
-        <Text style={styles.addButtonText}>Adicionar Disciplina</Text>
-      </Pressable>
+      <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+        <Pressable style={styles.cancelButton} onPress={onCancel}>
+          <Text style={[styles.buttonText, styles.cancelButtonText]}>Cancelar</Text>
+        </Pressable>
+        <Pressable style={styles.addButton} onPress={onAdd}>
+          <Text style={[styles.buttonText, styles.confirmButtonText]}>{addButtonText}</Text>
+        </Pressable>
+      </View>
       <ColorPickerModal
         visible={showColorPicker}
         initialColor={selectedColor}
@@ -166,12 +175,27 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginTop: 16,
+    flex: 1,
   },
-  addButtonText: {
-    color: '#fff',
+  cancelButton: {
+    backgroundColor: '#f1f5f9',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 16,
+    flex: 1,
+  },
+  buttonText: {
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
+  },
+  confirmButtonText: {
+    color: '#fff',
+  },
+  cancelButtonText: {
+    color: '#64748b',
   },
   modalOverlay: {
     flex: 1,
