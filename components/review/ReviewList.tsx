@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Check, Ban } from 'lucide-react-native';
 import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import { formatDateToLocalString } from '@/services/dateUtils';
+import { Ban, Check } from 'lucide-react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface ReviewListProps {
   isLoading: boolean;
@@ -24,7 +25,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
     ) : (
       sortedReviewDates.map(([date, dateReviews]) => (
         <View key={date} style={styles.dateReviews}>
-          <Text style={styles.dateText}>{date}</Text>
+          <Text style={styles.dateText}>{formatDateToLocalString(date)}</Text>
           {dateReviews.map((review, index) => {
             const isCompleted = isReviewCompleted(review, date);
             const isSkipped =
