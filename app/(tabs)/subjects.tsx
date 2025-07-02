@@ -1,20 +1,20 @@
+import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import CustomRefreshControl from '@/components/layout/refresh-control';
+import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
+import SubjectAddForm from '@/components/subjects/SubjectAddForm';
+import SubjectList from '@/components/subjects/SubjectList';
+import { useReviews } from '@/contexts/ReviewsContext';
+import { useSubjects } from '@/contexts/SubjectsContext';
+import { Plus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { Plus } from 'lucide-react-native';
-import { useSubjects } from '@/contexts/SubjectsContext';
-import DeleteSubjectConfirmation from '@/components/modals/delete-subject-confirmation';
-import { useReviews } from '@/contexts/ReviewsContext';
-import CustomRefreshControl from '@/components/layout/refresh-control';
 import { Toast } from 'toastify-react-native';
-import LoadingSkeleton from '@/components/layout/loading-skeleton';
-import SubjectList from '@/components/subjects/SubjectList';
-import SubjectAddForm from '@/components/subjects/SubjectAddForm';
 
 const COLORS = [
   '#ef4444',
@@ -28,7 +28,6 @@ const COLORS = [
   '#a855f7',
   '#d946ef',
   '#ec4899',
-  '#f43f5e',
 ];
 
 export default function Subjects() {
