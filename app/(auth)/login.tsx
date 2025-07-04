@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '@/services/api';
 import { router } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
-import api from '@/services/api';
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { Toast } from 'toastify-react-native';
 
 export default function Login() {
@@ -20,7 +26,9 @@ export default function Login() {
       router.replace('/(tabs)');
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        Toast.warn('Credenciais inválidas! Verifique seu usuário e senha e tente novamente.');
+        Toast.warn(
+          'Credenciais inválidas! Verifique seu usuário e senha e tente novamente.'
+        );
       }
     }
   };
@@ -45,7 +53,7 @@ export default function Login() {
           secureTextEntry={!showPassword}
           autoCapitalize="none"
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.visibilityToggle}
           onPress={() => setShowPassword(!showPassword)}
         >
@@ -56,17 +64,20 @@ export default function Login() {
           )}
         </TouchableOpacity>
       </View>
-      <TouchableOpacity 
-        style={styles.loginButton} 
-        onPress={handleLogin}
-      >
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
         <Text style={styles.loginButtonText}>Entrar</Text>
       </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.registerButton} 
+      <TouchableOpacity
+        style={styles.registerButton}
         onPress={() => router.replace('/(auth)/register')}
       >
-        <Text style={styles.registerButtonText}>Criar minha conta!</Text>
+        <Text style={styles.registerButtonText}>Criar minha conta</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.registerButton}
+        onPress={() => router.replace('/(auth)/forgot-password')}
+      >
+        <Text style={styles.registerButtonText}>Esqueci minha senha</Text>
       </TouchableOpacity>
     </View>
   );
