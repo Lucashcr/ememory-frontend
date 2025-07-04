@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     backgroundColor: '#fff',
-    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
