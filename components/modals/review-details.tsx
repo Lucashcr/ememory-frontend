@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import formatStatusDisplay from '@/services/formatStatusDisplay';
 import {
   View,
   Text,
@@ -115,7 +116,7 @@ export default function ReviewDetails({
                         styles.currentDateText,
                     ]}
                   >
-                    {formatDateToLocalString(date.scheduled_for)} ({date.status})
+                    {formatDateToLocalString(date.scheduled_for)} ({formatStatusDisplay(date.status)})
                   </Text>
                 </View>
               ))}
