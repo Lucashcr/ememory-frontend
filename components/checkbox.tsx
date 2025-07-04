@@ -36,7 +36,7 @@ export default function Checkbox({
 
 const styles = StyleSheet.create({
   checkboxContainer: {
-    padding: 4,
+    padding: 0,
   },
   checkbox: {
     width: 24,
