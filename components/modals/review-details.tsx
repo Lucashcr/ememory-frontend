@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import type { Review } from '@/contexts/ReviewsContext';
+import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
 import formatStatusDisplay from '@/services/formatStatusDisplay';
+import { Trash2, X } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
   Modal,
-  StyleSheet,
   Pressable,
   ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { X, Trash2 } from 'lucide-react-native';
-import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
-import type { Review } from '@/contexts/ReviewsContext';
-import DeleteReviewConfirmation from './delete-review-confirmation';
 import { Toast } from 'toastify-react-native';
+import DeleteReviewConfirmation from './delete-review-confirmation';
 
 interface ReviewDetailsProps {
   review: Review | null;
