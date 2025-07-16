@@ -1,12 +1,16 @@
+import { AxiosResponse } from 'axios';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
-import api from '@/services/api';
-import {validateEmail, validatePassword} from '@/services/validators';
+import { api } from '@/services/api';
+import { LoginResponse, RegisterResponse } from '@/services/auth/types';
+import { Review } from '@/services/reviews/types';
+import { Subject } from '@/services/subjects/types';
+import { validateEmail, validatePassword } from '@/services/validators';
 import { Toast } from 'toastify-react-native';
 
 export default function Register() {
@@ -42,26 +46,25 @@ export default function Register() {
       return;
     }
 
-    const response = await api.post('/auth/users/', {
+    const registerData = {
       email,
       password,
       first_name: firstName,
       last_name: lastName,
-    });
+    };
+    const response = await api.post<{data: RegisterResponse}>('/auth/users/', registerData) as AxiosResponse;
     if (response.status !== 201) {
       Toast.error('Ocorreu um erro inesperado ao registrar! Tente novamente.');
       return;
     }
 
-    const loginResponse = await api.post('/auth/token/login', {
-      email,
-      password,
-    });
+    const loginData = { email, password };
+    const loginResponse = await api.post<{data: LoginResponse}>('/auth/token/login', loginData) as AxiosResponse;
     await signIn(loginResponse.data.auth_token);
 
     const [subjectsResponse, reviewsResponse] = await Promise.all([
-      api.get('/reviews/subjects/'),
-      api.get('/reviews/'),
+      api.get<{data: Subject[]}>('/reviews/subjects/') as Promise<AxiosResponse>,
+      api.get<{data: Review[]}>('/reviews/') as Promise<AxiosResponse>,
     ]);
 
     setSubjects(subjectsResponse.data);

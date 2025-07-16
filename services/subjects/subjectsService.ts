@@ -1,30 +1,27 @@
-import api from '../api';
+import { api, ApiClientType } from '../api';
 import { CreateSubjectDTO, ISubjectsService, Subject, UpdateSubjectDTO } from './types';
 
 export class SubjectsServiceImpl implements ISubjectsService {
-  private readonly api;
+  private readonly api: ApiClientType;
 
-  constructor(api: typeof import('../api').default) {
-    this.api = api;
+  constructor(apiClient: ApiClientType = api) {
+    this.api = apiClient;
   }
 
   async fetchSubjects(): Promise<Subject[]> {
-    const response = await this.api.get('/reviews/subjects/');
-    return response.data;
+    return this.api.get<Subject[]>('/reviews/subjects/');
   }
 
   async addSubject(data: CreateSubjectDTO): Promise<Subject> {
-    const response = await this.api.post('/reviews/subjects/', data);
-    return response.data;
+    return this.api.post<Subject>('/reviews/subjects/', data);
   }
 
   async removeSubject(id: string): Promise<void> {
-    await this.api.delete(`/reviews/subjects/${id}/`);
+    return this.api.delete<void>(`/reviews/subjects/${id}/`);
   }
 
   async updateSubject({ id, ...data }: UpdateSubjectDTO): Promise<Subject> {
-    const response = await this.api.put(`/reviews/subjects/${id}/`, data);
-    return response.data;
+    return this.api.put<Subject>(`/reviews/subjects/${id}/`, data);
   }
 }
 

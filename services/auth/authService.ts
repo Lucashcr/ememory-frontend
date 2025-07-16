@@ -1,13 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../api';
+import { api, ApiClientType } from '../api';
 import { IAuthService, UserData } from './types';
 
 export class AuthServiceImpl implements IAuthService {
   private readonly TOKEN_KEY = '@EMem:token';
-  private readonly api;
+  private readonly api: ApiClientType;
 
-  constructor(api: typeof import('../api').default) {
-    this.api = api;
+  constructor(apiClient: ApiClientType = api) {
+    this.api = apiClient;
   }
 
   async getStoredToken(): Promise<string | null> {
@@ -23,15 +23,13 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async fetchUserData(): Promise<UserData> {
-    const response = await this.api.get('/auth/users/me/');
-    return response.data;
+    return this.api.get<UserData>('/auth/users/me/');
   }
 
   async logout(): Promise<void> {
-    await this.api.post('/auth/token/logout');
+    await this.api.post<void>('/auth/token/logout');
     await this.removeToken();
   }
 }
 
-// Singleton instance for convenience
 export const authService = new AuthServiceImpl(api);

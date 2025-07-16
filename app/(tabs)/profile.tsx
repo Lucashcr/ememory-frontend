@@ -1,32 +1,32 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
-import {
-  AlertCircle,
-  LogOut,
-  Mail,
-  User as UserIcon,
-} from 'lucide-react-native';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSubjects } from '@/contexts/SubjectsContext';
-import { useReviews } from '@/contexts/ReviewsContext';
-import { useNotifications } from '@/hooks/useNotifications';
-import TimePickerModal from '@/components/modals/time-picker';
-import api from '@/services/api';
-import {
-  getNotificationTime,
-  setNotificationTime,
-} from '@/services/notificationTime';
-import CustomRefreshControl from '@/components/layout/refresh-control';
-import { Toast } from 'toastify-react-native';
-import { router } from 'expo-router';
 import LoadingSkeleton from '@/components/layout/loading-skeleton';
+import CustomRefreshControl from '@/components/layout/refresh-control';
+import TimePickerModal from '@/components/modals/time-picker';
+import { useAuth } from '@/contexts/AuthContext';
+import { useReviews } from '@/contexts/ReviewsContext';
+import { useSubjects } from '@/contexts/SubjectsContext';
+import { useNotifications } from '@/hooks/useNotifications';
+import { api } from '@/services/api';
+import {
+    getNotificationTime,
+    setNotificationTime,
+} from '@/services/notificationTime';
+import { router } from 'expo-router';
+import {
+    AlertCircle,
+    LogOut,
+    Mail,
+    User as UserIcon,
+} from 'lucide-react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { Toast } from 'toastify-react-native';
 
 export default function Profile() {
   const { signOut, user, fetchUserData, isLoadingUserData } = useAuth();

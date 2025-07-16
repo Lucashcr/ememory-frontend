@@ -7,9 +7,9 @@
   - Os contexts `AuthContext`, `ReviewsContext` e `SubjectsContext` contêm muita lógica de negócio. Mover essa lógica para hooks customizados ou services.
 
 ### Services
-- [ ] Melhorar organização dos services
+- [x] Melhorar organização dos services
   - Criar namespaces ou subpastas para agrupar serviços relacionados (ex: `/services/auth`, `/services/reviews`, `/services/dates`)
-- [ ] Padronizar retorno das funções de API
+- [x] Padronizar retorno das funções de API
   - Criar um tipo padrão de resposta para todas as chamadas de API em `api.ts`
 
 ### Components

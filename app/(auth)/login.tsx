@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
-import api from '@/services/api';
+import { api } from '@/services/api';
+import { LoginResponse } from '@/services/auth/types';
 import { router } from 'expo-router';
 import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -20,7 +21,8 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await api.post('/auth/token/login', { email, password });
+      const loginData = { email, password };
+      const response = await api.post<{ data: LoginResponse }>('/auth/token/login', loginData);
       await signIn(response.data.auth_token);
       Toast.success('Login realizado com sucesso!');
       router.replace('/(tabs)');

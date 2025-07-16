@@ -1,12 +1,12 @@
-import api from '@/services/api';
+import { api } from '@/services/api';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
