@@ -1,6 +1,6 @@
-import type { Review } from '@/contexts/ReviewsContext';
 import { formatDateToLocalString, getCurrentDate } from '@/services/dateUtils';
 import formatStatusDisplay from '@/services/formatStatusDisplay';
+import type { Review } from '@/services/reviews/types';
 import { Trash2, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {

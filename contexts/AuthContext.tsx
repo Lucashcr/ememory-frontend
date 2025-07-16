@@ -1,13 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '@/services/api';
-
-interface UserData {
-  id: number;
-  email: string;
-  first_name: string;
-  last_name: string;
-}
+import { useAuthService } from '@/hooks/useAuthService';
+import { UserData } from '@/services/auth/types';
+import React, { createContext, useContext, useEffect } from 'react';
 
 interface AuthContextData {
   signed: boolean;
@@ -22,64 +15,22 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState(true);
-  const [user, setUser] = useState<UserData | null>(null);
-
-  const fetchUserData = async () => {
-    setIsLoadingUserData(true);
-    try {
-      const response = await api.get('/auth/users/me/');
-      setUser(response.data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-    setIsLoadingUserData(false);
-  };
+  const auth = useAuthService();
 
   useEffect(() => {
-    async function loadStorageData() {
-      try {
-        const storedToken = await AsyncStorage.getItem('@EMem:token');
-        
-        if (storedToken) {
-          setToken(storedToken);
-          await fetchUserData();
-        }
-      } catch (error) {
-        console.error('Error loading storage data:', error);
-      } finally {
-        setIsLoadingUserData(false);
+    async function initializeAuth() {
+      await auth.initialize();
+      if (auth.token) {
+        await auth.fetchUserData();
       }
     }
-    loadStorageData();
+    
+    initializeAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const signIn = async (newToken: string) => {
-    try {
-      await AsyncStorage.setItem('@EMem:token', newToken);
-      setToken(newToken);
-      await fetchUserData();
-    } catch (error) {
-      console.error('Error storing auth data:', error);
-      throw new Error('Falha ao salvar dados de autenticação');
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await AsyncStorage.removeItem('@EMem:token');
-      setToken(null);
-      setUser(null);
-    } catch (error) {
-      console.error('Error removing auth data:', error);
-    }
-  };
-
   return (
-    <AuthContext.Provider 
-      value={{ signed: !!token, token, isLoadingUserData, user, signIn, signOut, fetchUserData }}
-    >
+    <AuthContext.Provider value={auth}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface CalendarGridProps {
-  days: string[];
+  days: (string | null)[];
   reviewsByDate: { [key: string]: any[] };
   onDayPress: (dateStr: string) => void;
 }
@@ -12,7 +12,8 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   reviewsByDate,
   onDayPress,
 }) => {
-  function isDisabled(dateStr: string) {
+  function isDisabled(dateStr: string | null) {
+    if (!dateStr) return true;
     return new Date(dateStr + 'T23:59:59').getTime() < Date.now();
   }
 

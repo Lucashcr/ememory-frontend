@@ -1,11 +1,6 @@
-import api from '@/services/api';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
-export type Subject = {
-  id: string;
-  name: string;
-  color: string;
-};
+import { useSubjectsService } from '@/hooks/useSubjectsService';
+import { Subject } from '@/services/subjects/types';
+import React, { createContext, ReactNode, useContext, useEffect } from 'react';
 
 type SubjectsContextType = {
   subjects: Subject[];
@@ -18,96 +13,18 @@ type SubjectsContextType = {
   updateSubject: (id: string, name: string, color: string) => Promise<void>;
 };
 
-const initialSubjects: Subject[] = [];
-
 export const SubjectsContext = createContext<SubjectsContextType | undefined>(undefined);
 
 export function SubjectsProvider({ children }: { children: ReactNode }) {
-  const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
-  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchSubjects = async () => {
-    setIsLoadingSubjects(true);
-    setError(null);
-    try {
-      const response = await api.get('/reviews/subjects/');
-      setSubjects(response.data);
-    } catch (err) {
-      setError('Failed to fetch subjects');
-      console.error('Error fetching subjects:', err);
-    } finally {
-      setIsLoadingSubjects(false);
-    }
-  };
+  const subjectsService = useSubjectsService();
 
   useEffect(() => {
-    fetchSubjects();
+    subjectsService.fetchSubjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const addSubject = async (name: string, color: string) => {
-    setIsLoadingSubjects(true);
-    setError(null);
-    try {
-      const response = await api.post('/reviews/subjects/', {
-        name,
-        color,
-      });
-      setSubjects(prev => [...prev, response.data]);
-    } catch (err) {
-      setError('Failed to add subject');
-      console.error('Error adding subject:', err);
-      throw err;
-    } finally {
-      setIsLoadingSubjects(false);
-    }
-  };
-
-  const removeSubject = async (id: string) => {
-    setIsLoadingSubjects(true);
-    setError(null);
-    try {
-      await api.delete(`/reviews/subjects/${id}/`);
-      setSubjects(prev => prev.filter(subject => subject.id !== id));
-    } catch (err) {
-      setError('Failed to remove subject');
-      console.error('Error removing subject:', err);
-      throw err;
-    } finally {
-      setIsLoadingSubjects(false);
-    }
-  };
-
-  const updateSubject = async (id: string, name: string, color: string) => {
-    setIsLoadingSubjects(true);
-    setError(null);
-    try {
-      const response = await api.put(`/reviews/subjects/${id}/`, { name, color });
-      setSubjects(prev => prev.map(subject =>
-        subject.id === id ? response.data : subject
-      ));
-    } catch (err) {
-      setError('Failed to update subject');
-      console.error('Error updating subject:', err);
-      throw err;
-    } finally {
-      setIsLoadingSubjects(false);
-    }
-  };
-
-  const value = {
-    subjects,
-    addSubject,
-    removeSubject,
-    setSubjects,
-    isLoadingSubjects,
-    error,
-    fetchSubjects,
-    updateSubject,
-  };
-
   return (
-    <SubjectsContext.Provider value={value}>
+    <SubjectsContext.Provider value={subjectsService}>
       {children}
     </SubjectsContext.Provider>
   );

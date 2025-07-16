@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Plus, Filter } from 'lucide-react-native';
+import CalendarGrid from '@/components/calendar/CalendarGrid';
+import CalendarHeader from '@/components/calendar/CalendarHeader';
+import WeekDays from '@/components/calendar/WeekDays';
+import CustomRefreshControl from '@/components/layout/refresh-control';
+import FilterReviewsModal from '@/components/modals/filter-reviews';
 import NewReviewModal from '@/components/modals/new-review';
+import RescheduleReviewModal from '@/components/modals/reschedule-review';
 import ReviewDetails from '@/components/modals/review-details';
-import { useReviews, Review } from '@/contexts/ReviewsContext';
+import ReviewList from '@/components/review/ReviewList';
+import { useReviews } from '@/contexts/ReviewsContext';
 import {
   formatDateString,
 } from '@/services/dateUtils';
-import CustomRefreshControl from '@/components/layout/refresh-control';
-import FilterReviewsModal from '@/components/modals/filter-reviews';
-import RescheduleReviewModal from '@/components/modals/reschedule-review';
-import CalendarHeader from '@/components/calendar/CalendarHeader';
-import WeekDays from '@/components/calendar/WeekDays';
-import CalendarGrid from '@/components/calendar/CalendarGrid';
-import ReviewList from '@/components/review/ReviewList';
+import { Review } from '@/services/reviews/types';
 import getReviewScheduleLabel from '@/services/reviewScheduleLabel';
+import { Filter, Plus } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MONTHS = [

@@ -1,7 +1,8 @@
 import Checkbox from '@/components/checkbox';
 import DatePickerWrapper from '@/components/date-picker';
-import { Review, useReviews } from '@/contexts/ReviewsContext';
+import { useReviews } from '@/contexts/ReviewsContext';
 import { formatDateString } from '@/services/dateUtils';
+import { Review } from '@/services/reviews/types';
 import { X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
