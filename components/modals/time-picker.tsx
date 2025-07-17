@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, StyleSheet, Pressable } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { X } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface TimePickerModalProps {
   visible: boolean;
@@ -16,15 +16,8 @@ export default function TimePickerModal({
   onSave,
   currentTime,
 }: TimePickerModalProps) {
-  const [selectedHour, setSelectedHour] = useState(8);
-  const [selectedMinute, setSelectedMinute] = useState(0);
-
-  useEffect(() => {
-    if (currentTime) {
-      setSelectedHour(currentTime.hour);
-      setSelectedMinute(currentTime.minute);
-    }
-  }, [currentTime]);
+  const [selectedHour, setSelectedHour] = useState(currentTime.hour.toString() || "0");
+  const [selectedMinute, setSelectedMinute] = useState(currentTime.minute.toString() || "0");
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
@@ -95,7 +88,7 @@ export default function TimePickerModal({
             <Pressable
               style={[styles.button, styles.saveButton]}
               onPress={() => {
-                onSave(selectedHour, selectedMinute);
+                onSave(parseInt(selectedHour), parseInt(selectedMinute));
                 onClose();
               }}
             >
