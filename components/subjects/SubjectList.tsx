@@ -156,7 +156,7 @@ const SubjectList: React.FC<SubjectListProps> = ({
 
 const styles = StyleSheet.create({
   subjectContainer: {
-    marginBottom: 16,
+    marginBottom: 8,
     borderRadius: 14,
     backgroundColor: '#f8fafc',
     shadowColor: '#000',
