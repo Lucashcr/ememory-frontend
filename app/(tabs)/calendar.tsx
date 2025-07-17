@@ -8,9 +8,7 @@ import RescheduleReviewModal from '@/components/modals/reschedule-review';
 import ReviewDetails from '@/components/modals/review-details';
 import ReviewList from '@/components/review/ReviewList';
 import { useReviews } from '@/contexts/ReviewsContext';
-import {
-  formatDateString,
-} from '@/services/dateUtils';
+import { formatDateString } from '@/services/dateUtils';
 import { Review } from '@/services/reviews/types';
 import getReviewScheduleLabel from '@/services/reviewScheduleLabel';
 import { Filter, Plus } from 'lucide-react-native';
@@ -34,7 +32,13 @@ const MONTHS = [
 ];
 
 export default function Calendar() {
-  const { reviews, toggleReview, deleteReview, fetchReviews, isLoadingReviews } = useReviews();
+  const {
+    reviews,
+    toggleReview,
+    deleteReview,
+    fetchReviews,
+    isLoadingReviews,
+  } = useReviews();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(
@@ -132,7 +136,7 @@ export default function Calendar() {
     <View style={styles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={CustomRefreshControl({ fetchReviews })}
+        refreshControl={CustomRefreshControl({fetchReviews})}
       >
         <CalendarHeader
           currentDate={currentDate}

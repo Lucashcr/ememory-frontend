@@ -7,39 +7,37 @@ import { useSubjects } from '@/contexts/SubjectsContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { api } from '@/services/api';
 import {
-    getNotificationTime,
-    setNotificationTime,
+  getNotificationTime,
+  setNotificationTime,
 } from '@/services/notificationTime';
 import { router } from 'expo-router';
 import {
-    AlertCircle,
-    LogOut,
-    Mail,
-    User as UserIcon,
+  AlertCircle,
+  LogOut,
+  Mail,
+  User as UserIcon,
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
 export default function Profile() {
-  const { signOut, user, fetchUserData, isLoadingUserData } = useAuth();
-  const { setSubjects } = useSubjects();
-  const { setReviews } = useReviews();
-  const { requestNotificationPermissions, scheduleReviewNotification } =
-    useNotifications();
-
   const [timePickerVisible, setTimePickerVisible] = useState(false);
   const [notificationTime, setNotificationTimeState] = useState({
     hour: 8,
     minute: 0,
   });
+
+  const { signOut, user, fetchUserData, isLoadingUserData } = useAuth();
+  const { setSubjects } = useSubjects();
+  const { setReviews } = useReviews();
+  const notifications = useNotifications();
 
   const loadNotificationTime = useCallback(async () => {
     const time = await getNotificationTime();
@@ -47,10 +45,12 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    fetchUserData();
-    loadNotificationTime();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const loadInitialData = async () => {
+      await Promise.all([fetchUserData(), loadNotificationTime()]);
+    };
+
+    loadInitialData();
+  }, [fetchUserData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLogout = async () => {
     try {
@@ -73,7 +73,9 @@ export default function Profile() {
 
   const handleSaveTime = async (hour: number, minute: number) => {
     try {
-      const hasPermission = await requestNotificationPermissions();
+      const hasPermission =
+        await notifications.requestNotificationPermissions();
+
       if (!hasPermission) {
         Toast.error(
           'O aplicativo não possui permissão para enviar notificações ao dispositivo. Habilite as notificações nas configurações do dispositivo para poder configurar o horário das notificações.'
@@ -84,10 +86,10 @@ export default function Profile() {
       const parsedTime = {
         hour: parseInt(hour.toString(), 10),
         minute: parseInt(minute.toString(), 10),
-      }
+      };
       await setNotificationTime(parsedTime.hour, parsedTime.minute);
       setNotificationTimeState(parsedTime);
-      await scheduleReviewNotification();
+      await notifications.scheduleReviewNotification();
 
       Toast.success('Horário das notificações atualizado com sucesso!');
     } catch {
@@ -97,21 +99,15 @@ export default function Profile() {
     }
   };
 
-  if (!user) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color="#6366f1" />
-      </View>
-    );
-  }
-
   return (
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
       refreshControl={CustomRefreshControl({ fetchUserData })}
     >
-      {isLoadingUserData ? <LoadingSkeleton mode="review" /> : (
+      {isLoadingUserData ? (
+        <LoadingSkeleton mode="review" />
+      ) : (
         <>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Dados do Usuário</Text>
@@ -123,7 +119,7 @@ export default function Profile() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Nome</Text>
                 <Text style={styles.infoText}>
-                  {user.first_name} {user.last_name}
+                  {user && `${user.first_name} ${user.last_name}`}
                 </Text>
               </View>
             </View>
@@ -134,7 +130,7 @@ export default function Profile() {
               </View>
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Email</Text>
-                <Text style={styles.infoText}>{user.email}</Text>
+                <Text style={styles.infoText}>{user?.email}</Text>
               </View>
             </View>
           </View>

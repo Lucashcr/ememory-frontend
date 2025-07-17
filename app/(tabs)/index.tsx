@@ -11,15 +11,25 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function DailyReviews() {
-  const {reviews, isReviewCompleted, toggleReview, deleteReview, fetchReviews, isLoadingReviews} = useReviews();
+  const {
+    reviews,
+    isReviewCompleted,
+    toggleReview,
+    deleteReview,
+    fetchReviews,
+    isLoadingReviews,
+  } = useReviews();
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [newReviewModalVisible, setNewReviewModalVisible] = useState(false);
-  const [reviewDetailsModalVisible, setReviewDetailsModalVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(formatDateString(new Date()));
-  
+  const [reviewDetailsModalVisible, setReviewDetailsModalVisible] =
+    useState(false);
+  const [selectedDate, setSelectedDate] = useState(
+    formatDateString(new Date())
+  );
+
   const today = getCurrentDate();
-  const dailyReviews = reviews.filter(review => 
-    review.review_dates.some(rd => rd.scheduled_for === today)
+  const dailyReviews = reviews.filter((review) =>
+    review.review_dates.some((rd) => rd.scheduled_for === today)
   );
 
   const openReviewDetails = (review: Review) => {
@@ -29,7 +39,11 @@ export default function DailyReviews() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={CustomRefreshControl({fetchReviews})}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={CustomRefreshControl({fetchReviews})}
+      >
         <ReviewListDaily
           isLoading={isLoadingReviews}
           reviews={dailyReviews}
@@ -47,7 +61,7 @@ export default function DailyReviews() {
         onClose={() => setReviewDetailsModalVisible(false)}
         onDelete={deleteReview}
         onToggleComplete={(id) => {
-          const review = dailyReviews.find(r => r.id === id);
+          const review = dailyReviews.find((r) => r.id === id);
           if (review) {
             toggleReview(review);
           }
@@ -65,7 +79,7 @@ export default function DailyReviews() {
       >
         <Plus size={24} color="#fff" />
       </Pressable>
-      
+
       <NewReviewModal
         visible={newReviewModalVisible}
         onClose={() => setNewReviewModalVisible(false)}

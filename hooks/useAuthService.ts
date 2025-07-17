@@ -18,7 +18,8 @@ export function useAuthService(auth: IAuthService = authService) {
   }, [auth]);
 
   const fetchUserData = useCallback(async () => {
-    if (!token || isLoadingUserData) return; // Evita múltiplas chamadas simultâneas
+    if (!token) return;
+    if (isLoadingUserData) return; // Evita múltiplas chamadas simultâneas
     
     setIsLoadingUserData(true);
     try {
@@ -30,7 +31,7 @@ export function useAuthService(auth: IAuthService = authService) {
     } finally {
       setIsLoadingUserData(false);
     }
-  }, [auth, token, isLoadingUserData]);
+  }, [auth, token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const signIn = useCallback(async (newToken: string) => {
     try {

@@ -24,7 +24,9 @@
         {
           "icon": "./assets/images/favicon.png",
           "color": "#6366f1",
-          "sounds": ["./assets/sounds/notification.wav"]
+          "sounds": [
+            "./assets/sounds/notification.wav"
+          ]
         }
       ],
       [
@@ -50,6 +52,9 @@
         "projectId": "1dd3989f-63e4-4fed-9ccf-9d2dc4686854"
       }
     },
-    "owner": "lucashcr"
-  }
+    "owner": "lucashcr",
+    "sdkVersion": "52.0.0",
+    "entryPoint": ".vscode/exponentIndex.js"
+  },
+  "name": "e-memory"
 }

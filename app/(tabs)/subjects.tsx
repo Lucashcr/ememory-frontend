@@ -7,12 +7,7 @@ import { useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import { Plus } from 'lucide-react-native';
 import React, { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
 const COLORS = [
@@ -30,7 +25,14 @@ const COLORS = [
 ];
 
 export default function Subjects() {
-  const { subjects, addSubject, updateSubject, removeSubject, fetchSubjects, isLoadingSubjects } = useSubjects();
+  const {
+    subjects,
+    addSubject,
+    updateSubject,
+    removeSubject,
+    fetchSubjects,
+    isLoadingSubjects,
+  } = useSubjects();
   const { fetchReviews } = useReviews();
 
   const [newSubject, setNewSubject] = useState('');
@@ -78,7 +80,9 @@ export default function Subjects() {
       setSelectedColor(COLORS[0]);
       setFormVisible(false);
     } catch {
-      Toast.error('Ocorreu um erro ao adicionar a disciplina. Tente novamente!');
+      Toast.error(
+        'Ocorreu um erro ao adicionar a disciplina. Tente novamente!'
+      );
     }
   };
 
@@ -89,12 +93,18 @@ export default function Subjects() {
         await fetchReviews();
         setSubjectToDelete(null);
       } catch {
-        Toast.error('Ocorreu um erro ao excluir a disciplina. Tente novamente!');
+        Toast.error(
+          'Ocorreu um erro ao excluir a disciplina. Tente novamente!'
+        );
       }
     }
   };
 
-  const handleEditSubject = (subject: { id: string; name: string; color: string }) => {
+  const handleEditSubject = (subject: {
+    id: string;
+    name: string;
+    color: string;
+  }) => {
     setEditingSubject(subject);
     setNewSubject(subject.name);
     setSelectedColor(subject.color);
@@ -106,20 +116,26 @@ export default function Subjects() {
     const trimmedName = newSubject.trim();
     if (!trimmedName) return;
 
-    // Verificar se já existe uma disciplina com o mesmo nome (exceto a atual)
     const duplicateName = subjects.find(
-      (subject) => subject.name.toLowerCase() === trimmedName.toLowerCase() && subject.id !== editingSubject.id
+      (subject) =>
+        subject.name.toLowerCase() === trimmedName.toLowerCase() &&
+        subject.id !== editingSubject.id
     );
     if (duplicateName) {
-      Toast.warn('Já existe uma disciplina com este nome. Por favor, escolha um nome diferente!');
+      Toast.warn(
+        'Já existe uma disciplina com este nome. Por favor, escolha um nome diferente!'
+      );
       return;
     }
-    // Verificar se já existe uma disciplina com a mesma cor (exceto a atual)
+
     const duplicateColor = subjects.find(
-      (subject) => subject.color === selectedColor && subject.id !== editingSubject.id
+      (subject) =>
+        subject.color === selectedColor && subject.id !== editingSubject.id
     );
     if (duplicateColor) {
-      Toast.warn('Esta cor já está sendo usada. Por favor, escolha uma cor diferente!');
+      Toast.warn(
+        'Esta cor já está sendo usada. Por favor, escolha uma cor diferente!'
+      );
       return;
     }
     try {
@@ -146,7 +162,7 @@ export default function Subjects() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        refreshControl={CustomRefreshControl({ fetchSubjects })}
+        refreshControl={CustomRefreshControl({fetchSubjects})}
       >
         {isLoadingSubjects ? (
           <LoadingSkeleton mode="subjects" />

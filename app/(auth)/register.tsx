@@ -1,14 +1,12 @@
-import { AxiosResponse } from 'axios';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useReviews } from '@/contexts/ReviewsContext';
+import { Review, useReviews } from '@/contexts/ReviewsContext';
 import { useSubjects } from '@/contexts/SubjectsContext';
 import { api } from '@/services/api';
-import { LoginResponse, RegisterResponse } from '@/services/auth/types';
-import { Review } from '@/services/reviews/types';
+import { LoginResponse } from '@/services/auth/types';
 import { Subject } from '@/services/subjects/types';
 import { validateEmail, validatePassword } from '@/services/validators';
 import { Toast } from 'toastify-react-native';
@@ -52,23 +50,19 @@ export default function Register() {
       first_name: firstName,
       last_name: lastName,
     };
-    const response = await api.post<{data: RegisterResponse}>('/auth/users/', registerData) as AxiosResponse;
-    if (response.status !== 201) {
-      Toast.error('Ocorreu um erro inesperado ao registrar! Tente novamente.');
-      return;
-    }
+    await api.post('/auth/users/', registerData);
 
     const loginData = { email, password };
-    const loginResponse = await api.post<{data: LoginResponse}>('/auth/token/login', loginData) as AxiosResponse;
-    await signIn(loginResponse.data.auth_token);
+    const loginResponse = await api.post<LoginResponse>('/auth/token/login', loginData);
+    await signIn(loginResponse.auth_token);
 
     const [subjectsResponse, reviewsResponse] = await Promise.all([
-      api.get<{data: Subject[]}>('/reviews/subjects/') as Promise<AxiosResponse>,
-      api.get<{data: Review[]}>('/reviews/') as Promise<AxiosResponse>,
+      api.get<Subject[]>('/reviews/subjects/'),
+      api.get<Review[]>('/reviews/'),
     ]);
 
-    setSubjects(subjectsResponse.data);
-    setReviews(reviewsResponse.data);
+    setSubjects(subjectsResponse);
+    setReviews(reviewsResponse);
 
     router.replace('/(tabs)');
   };

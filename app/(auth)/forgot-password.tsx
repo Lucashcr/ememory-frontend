@@ -1,14 +1,10 @@
 import { api } from '@/services/api';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Toast } from 'toastify-react-native';
+
+import { Button, Input } from '@/components/ui';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -26,26 +22,25 @@ export default function ForgotPassword() {
       <Text style={styles.message}>
         Digite seu email abaixo e caso ele esteja cadastrado, você receberá um link para redefinir sua senha. Se você não receber o email, verifique sua caixa de spam ou lixo eletrônico.
       </Text>
-      <TextInput
-        style={styles.input}
+      <Input
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TouchableOpacity
-        style={styles.forgotButton}
+      <Button
+        variant="primary"
         onPress={handleForgotPassword}
       >
-        <Text style={styles.forgotButtonText}>Enviar instruções</Text>
-      </TouchableOpacity>
-      <TouchableOpacity 
-        style={styles.loginButton} 
+        Enviar instruções
+      </Button>
+      <Button
+        variant="secondary"
         onPress={() => router.replace('/(auth)/login')}
       >
-        <Text style={styles.loginButtonText}>Fazer login</Text>
-      </TouchableOpacity>
+        Fazer login
+      </Button>
     </View>
   );
 }
@@ -69,35 +64,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
     lineHeight: 24,
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 10,
-    backgroundColor: '#fff',
-  },
-  forgotButton: {
-    backgroundColor: '#6366f1',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  forgotButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loginButton: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    color: '#6366f1',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
