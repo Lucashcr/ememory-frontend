@@ -22,21 +22,12 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/favicon.png",
+          "icon": "./assets/images/icon.png",
           "color": "#6366f1",
-          "sounds": [
-            "./assets/sounds/notification.wav"
-          ]
+          "sounds": ["./assets/sounds/notification.wav"]
         }
       ],
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#6366f1",
-          "image": "./assets/images/icon.png",
-          "imageWidth": 200
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
@@ -54,7 +45,12 @@
     },
     "owner": "lucashcr",
     "sdkVersion": "52.0.0",
-    "entryPoint": ".vscode/exponentIndex.js"
+    "entryPoint": ".vscode/exponentIndex.js",
+    "splash": {
+      "backgroundColor": "#6366f1",
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain"
+    }
   },
   "name": "e-memory"
 }
