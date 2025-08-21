@@ -5,9 +5,9 @@ import { LoginResponse } from '@/services/auth/types';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
@@ -19,8 +19,8 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const loginData = { email, password };
-      const response = await api.post<{ data: LoginResponse }>('/auth/token/login', loginData);
-      await signIn(response.data.auth_token);
+      const response = await api.post<LoginResponse>('/auth/token/login', loginData);
+      await signIn(response.auth_token);
       Toast.success('Login realizado com sucesso!');
       router.replace('/(tabs)');
     } catch (error: any) {
