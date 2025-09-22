@@ -27,6 +27,14 @@
           "sounds": ["./assets/sounds/notification.wav"]
         }
       ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#6366f1",
+          "image": "./assets/images/splash.png",
+          "imageWidth": 200
+        }
+      ],
       "expo-font"
     ],
     "experiments": {
